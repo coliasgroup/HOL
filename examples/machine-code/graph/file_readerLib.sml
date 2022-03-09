@@ -28,7 +28,7 @@ fun HOL_commit () = let
   val exec = OS.Process.system
   val filename = "/tmp/hol_commit"
   val _ = exec ("cd " ^ path ^
-                "; git log --abbrev-commit -n 1 | head -n 1 > " ^ filename)
+                "&& git log -n1 --pretty=\"commit %h\" 2>/dev/null >" ^ filename)
   val t = TextIO.openIn(filename)
   val commit = case TextIO.inputLine(t) of SOME s => s | NONE => fail()
   val _ = TextIO.closeIn(t)
