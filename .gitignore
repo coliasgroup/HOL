@@ -36,6 +36,11 @@
 #Generated Verilog from Iyoda/Gordon hw compilation
 *.vl
 
+# These would by matched by the patterns above,
+# but we don't want to ignore them.
+!/src/postkernel/Theory.sig
+!/src/postkernel/Theory.sml
+
 config-override
 tools-poly/poly-includes.ML
 .kernelidstr
