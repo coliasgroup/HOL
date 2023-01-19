@@ -525,6 +525,15 @@ val OPTION_IGNORE_BIND_EQUALS_OPTION = store_thm(
        ?x. (m1 = SOME x) /\ (m2 = SOME y))``,
   OPTION_CASES_TAC ``m1:'a option`` THEN SRW_TAC [][]);
 
+Theorem OPTION_IGNORE_BIND_cong[defncong]:
+  (o1 = o2: 'a option) /\ (!v. o2 = SOME v ==> p1 = p2:'b option) ==>
+  OPTION_IGNORE_BIND o1 p1 = OPTION_IGNORE_BIND o2 p2
+Proof
+  OPTION_CASES_TAC “o2:'a option” >> rpt strip_tac >>
+  ASM_REWRITE_TAC[OPTION_IGNORE_BIND_thm] >> first_x_assum irule >>
+  irule_at Any EQ_REFL
+QED
+
 val OPTION_GUARD_def = new_recursive_definition {
   name = "OPTION_GUARD_def",
   rec_axiom = boolTheory.boolAxiom,
@@ -693,6 +702,16 @@ Proof
   SRW_TAC[][OPTREL_def]
 QED
 
+Theorem OPTREL_CONG[defncong]:
+  !(opt1:'a option) (opt2:'b option) opt1' opt2' R R'.
+    opt1 = opt1' /\ opt2 = opt2' /\
+    (!x y. opt1' = SOME x /\ opt2' = SOME y ==> R x y = R' x y) ==>
+    (OPTREL R opt1 opt2 <=> OPTREL R' opt1' opt2')
+Proof
+  SRW_TAC[][] >> pop_assum mp_tac >> OPTION_CASES_TAC “opt1 : 'a option” >>
+  OPTION_CASES_TAC “opt2 : 'b option” >> SRW_TAC[][OPTREL_def]
+QED
+
 (* ----------------------------------------------------------------------
     some (Hilbert choice "lifted" to the option type)
 
@@ -736,9 +755,22 @@ val some_EQ = store_thm(
   CONJ_TAC THEN DEEP_INTRO_TAC some_intro THEN SRW_TAC [][]);
 val _ = export_rewrites ["some_EQ"]
 
+(* |- !M M' v f.
+        M = M' /\ (M' = NONE ==> v = v') /\ (!x. M' = SOME x ==> f x = f' x) ==>
+        option_CASE M v f = option_CASE M' v' f'
+ *)
 val option_case_cong =
   save_thm("option_case_cong",
       Prim_rec.case_cong_thm option_nchotomy option_case_def);
+
+(* another similar theorem, moved here from cardinalTheory:
+   |- option_CASE x v f <=> (x = NONE ==> v) /\ !x'. x = SOME x' ==> f x'
+ *)
+Theorem option_imp_elim =
+        TypeBase.case_pred_imp_of “:'a option”
+     |> INST_TYPE [beta |-> bool]
+     |> Q.SPEC ‘I’
+     |> REWRITE_RULE [combinTheory.I_THM]
 
 val OPTION_ALL_def = new_recursive_definition {
   def = ``(OPTION_ALL P NONE <=> T) /\ (OPTION_ALL P (SOME (x:'a)) <=> P x)``,
@@ -764,6 +796,14 @@ val option_case_eq = Q.store_thm(
   ‘(option_CASE (opt:'a option) nc sc = v) <=>
    ((opt = NONE) /\ (nc = v) \/ ?x. (opt = SOME x) /\ (sc x = v))’,
   OPTION_CASES_TAC “opt:'a option” THEN SRW_TAC[][EQ_SYM_EQ, option_case_def]);
+
+(* OpenTheory fix: hol-set reports the following 1 unsatisfied assumption *)
+Theorem option_case_eq' :
+   (option_CASE (x:'a option) v f = v') <=>
+   ((x = NONE) /\ (v = v') \/ ?a. (x = SOME a) /\ (f a = v'))
+Proof
+   REWRITE_TAC [option_case_eq]
+QED
 
 val S = PP.add_string and NL = PP.NL and B = PP.block PP.CONSISTENT 0
 

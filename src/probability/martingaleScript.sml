@@ -121,13 +121,11 @@ Proof
  >- (HO_MATCH_MP_TAC lebesgue_monotone_convergence >> rw [] >| (* 3 subgoals *)
      [ (* goal 1 (of 3) *)
        MATCH_MP_TAC IN_MEASURABLE_BOREL_INF >> simp [] \\
-       qexistsl_tac [‘f’, ‘from i’] >> rw [IN_FROM] >| (* 3 subgoals *)
-       [ (* goal 1 (of 3) *)
-         FULL_SIMP_TAC std_ss [measure_space_def],
-         (* goal 2 (of 3) *)
+       qexistsl_tac [‘f’, ‘from i’] >> rw [IN_FROM] >| (* 2 subgoals *)
+       [ (* goal 1 (of 2) *)
          rw [Once EXTENSION, IN_FROM] \\
          Q.EXISTS_TAC ‘i’ >> rw [],
-         (* goal 3 (of 3) *)
+         (* goal 1 (of 2) *)
          Suff ‘{f n x | i <= n} = (IMAGE (\n. f n x) (from i))’ >- rw [] \\
          rw [Once EXTENSION, IN_FROM] ],
        (* goal 2 (of 3) *)
@@ -164,13 +162,11 @@ Proof
  >- (HO_MATCH_MP_TAC lebesgue_monotone_convergence_decreasing >> rw [] >| (* 5 subgoals *)
      [ (* goal 1 (of 5) *)
        MATCH_MP_TAC IN_MEASURABLE_BOREL_SUP >> simp [] \\
-       qexistsl_tac [‘f’, ‘from i’] >> rw [IN_FROM] >| (* 3 subgoals *)
+       qexistsl_tac [‘f’, ‘from i’] >> rw [IN_FROM] >| (* 2 subgoals *)
        [ (* goal 5.1 (of 3) *)
-         FULL_SIMP_TAC std_ss [measure_space_def],
-         (* goal 5.2 (of 3) *)
          rw [Once EXTENSION, IN_FROM] \\
          Q.EXISTS_TAC ‘i’ >> rw [],
-         (* goal 5.3 (of 3) *)
+         (* goal 5.2 (of 3) *)
          Suff ‘{f n x | i <= n} = (IMAGE (\n. f n x) (from i))’ >- rw [] \\
          rw [Once EXTENSION, IN_FROM] ],
        (* goal 2 (of 5) *)
@@ -852,9 +848,11 @@ Proof
          Q.EXISTS_TAC ‘n’ >> rw []) >> DISCH_TAC \\
      Know ‘abs (real (sup {a n | i <= n} - inf {a n | i <= n})) =
                 real (sup {a n | i <= n} - inf {a n | i <= n})’
-     >- (rw [abs_refl, GSYM extreal_le_eq, GSYM extreal_of_num_def] \\
+     >- (rw [abs_refl] \\
+         RW_TAC std_ss [GSYM extreal_le_eq, GSYM extreal_of_num_def] \\
          Suff ‘Normal (real (sup {a n | i <= n} - inf {a n | i <= n})) =
-                             sup {a n | i <= n} - inf {a n | i <= n}’ >- rw [] \\
+                             sup {a n | i <= n} - inf {a n | i <= n}’
+         >- RW_TAC std_ss [] \\
          MATCH_MP_TAC normal_real \\
         ‘?r. sup {a n | i <= n} = Normal r’ by METIS_TAC [extreal_cases] >> POP_ORW \\
         ‘?z. inf {a n | i <= n} = Normal z’ by METIS_TAC [extreal_cases] >> POP_ORW \\
@@ -910,19 +908,21 @@ Proof
         ‘?z. inf {a n | i <= n} = Normal z’ by METIS_TAC [extreal_cases] >> POP_ORW \\
          rw [extreal_sub_def]) >> STRIP_TAC \\
      Know ‘abs (real (Q i)) = real (Q i)’
-     >- (rw [abs_refl, GSYM extreal_le_eq, GSYM extreal_of_num_def] \\
-         Suff ‘Normal (real (Q i)) = Q i’ >- rw [] \\
+     >- (rw [abs_refl] \\
+         RW_TAC std_ss [GSYM extreal_le_eq, GSYM extreal_of_num_def] \\
+         Suff ‘Normal (real (Q i)) = Q i’ >- RW_TAC std_ss [] \\
          MATCH_MP_TAC normal_real >> rw []) >> Rewr' \\
      Q.PAT_X_ASSUM ‘!n. N <= n ==> abs (real (P n)) < e’
        (fn th => ASSUME_TAC (MATCH_MP th (ASSUME “N <= (i :num)”))) \\
      Know ‘abs (real (P i)) = real (P i)’
-     >- (rw [abs_refl, GSYM extreal_le_eq, GSYM extreal_of_num_def] \\
-         Suff ‘Normal (real (P i)) = P i’ >- rw [] \\
+     >- (rw [abs_refl] \\
+         RW_TAC std_ss [GSYM extreal_le_eq, GSYM extreal_of_num_def] \\
+         Suff ‘Normal (real (P i)) = P i’ >- RW_TAC std_ss [] \\
          MATCH_MP_TAC normal_real >> rw []) >> DISCH_THEN (fs o wrap) \\
      MATCH_MP_TAC REAL_LET_TRANS \\
      Q.EXISTS_TAC ‘real (P i)’ >> art [] \\
      REWRITE_TAC [GSYM extreal_le_eq] \\
-     rw [normal_real])
+     RW_TAC std_ss [normal_real])
  >> DISCH_TAC
  (* final stage *)
  >> rw [LIM_SEQUENTIALLY_real_normal]
@@ -1126,8 +1126,8 @@ Proof
         ‘?a. u i x = Normal a’ by METIS_TAC [extreal_cases] >> POP_ORW \\
         ‘?b. f x   = Normal b’ by METIS_TAC [extreal_cases] >> POP_ORW \\
          rw [extreal_sub_def, extreal_abs_def]) >> Rewr' \\
-     rw [abs_abs, GSYM extreal_lt_eq] \\
-     Suff ‘Normal (real (abs (u i x - f x))) = abs (u i x - f x)’ >- rw [] \\
+     RW_TAC std_ss [abs_abs, GSYM extreal_lt_eq] \\
+     Suff ‘Normal (real (abs (u i x - f x))) = abs (u i x - f x)’ >- RW_TAC std_ss [] \\
      MATCH_MP_TAC normal_real \\
     ‘?a. u i x = Normal a’ by METIS_TAC [extreal_cases] >> POP_ORW \\
     ‘?b. f x   = Normal b’ by METIS_TAC [extreal_cases] >> POP_ORW \\
@@ -5540,6 +5540,7 @@ Proof
        subsets ((X,A) CROSS (Y,B))’ by rw [prod_measure_space_alt]
  >> ‘(X CROSS Y,subsets ((X,A) CROSS (Y,B))) = (X,A) CROSS (Y,B)’
        by METIS_TAC [SPACE]
+ (* integrable ((X,A,u) CROSS (Y,B,v)) f *)
  >> STRONG_CONJ_TAC
  >- (MATCH_MP_TAC integrable_from_abs >> simp [integrable_def] \\
      ASM_SIMP_TAC bool_ss [FN_PLUS_ABS_SELF, FN_MINUS_ABS_ZERO, pos_fn_integral_zero] \\
@@ -5670,6 +5671,7 @@ Proof
      [ (* goal 1 (of 3) *)
       ‘!x. (fn_plus f) (x,y) - (fn_minus f) (x,y) = f (x,y)’
           by METIS_TAC [FN_DECOMP] >> POP_ORW \\
+      ‘sigma_algebra (X,A)’ by fs [measure_space_def] \\
        simp [Once IN_MEASURABLE_BOREL_PLUS_MINUS],
        (* goal 2 (of 3) *)
        CCONTR_TAC >> FULL_SIMP_TAC std_ss [],
@@ -5699,6 +5701,7 @@ Proof
      [ (* goal 1 (of 3) *)
       ‘!y. (fn_plus f) (x,y) - (fn_minus f) (x,y) = f (x,y)’
           by METIS_TAC [FN_DECOMP] >> POP_ORW \\
+      ‘sigma_algebra (Y,B)’ by fs [measure_space_def] \\
        simp [Once IN_MEASURABLE_BOREL_PLUS_MINUS],
        (* goal 2 (of 3) *)
        CCONTR_TAC >> FULL_SIMP_TAC std_ss [],
@@ -5975,6 +5978,9 @@ Proof
  >> ‘sigma_finite_measure_space (X,A,\s. 0) /\
      sigma_finite_measure_space (Y,B,\s. 0)’
       by METIS_TAC [measure_space_trivial, space_def, subsets_def]
+ >> Know ‘sigma_algebra ((X,A) CROSS (Y,B))’
+ >- (MATCH_MP_TAC SIGMA_ALGEBRA_PROD_SIGMA' \\
+     fs [sigma_algebra_def, algebra_def]) >> DISCH_TAC
  >> ‘(fn_plus f) IN measurable ((X,A) CROSS (Y,B)) Borel’
       by PROVE_TAC [IN_MEASURABLE_BOREL_FN_PLUS]
  >> ‘!s. s IN X CROSS Y ==> 0 <= (fn_plus f) s’ by rw [FN_PLUS_POS]
@@ -5994,8 +6000,14 @@ Proof
  >> ‘!y. fn_minus (\x. f (x,y)) = (\x. (fn_minus f) (x,y))’ by rw [FUN_EQ_THM, FN_MINUS_ALT]
  >> ‘!x. fn_plus (\y. f (x,y)) = (\y. (fn_plus f) (x,y))’   by rw [FUN_EQ_THM, FN_PLUS_ALT]
  >> ‘!x. fn_minus (\y. f (x,y)) = (\y. (fn_minus f) (x,y))’ by rw [FUN_EQ_THM, FN_MINUS_ALT]
- >> ONCE_REWRITE_TAC [IN_MEASURABLE_BOREL_PLUS_MINUS]
- >> RW_TAC std_ss []
+ (* final goals *)
+ >> CONJ_TAC >> rpt STRIP_TAC
+ >| [ ASM_SIMP_TAC std_ss
+        [Once (MATCH_MP IN_MEASURABLE_BOREL_PLUS_MINUS
+                        (ASSUME “sigma_algebra (X :'a set,A :'a set set)”))],
+      ASM_SIMP_TAC std_ss
+        [Once (MATCH_MP IN_MEASURABLE_BOREL_PLUS_MINUS
+                        (ASSUME “sigma_algebra (Y :'b set,B :'b set set)”))] ]
 QED
 
 (* ------------------------------------------------------------------------- *)
@@ -6310,15 +6322,13 @@ val martingale_alt_generator_shared_tactics_2 =
            (* goal 2 (of 4) *)
            MATCH_MP_TAC le_mul >> rw [FN_MINUS_POS, INDICATOR_FN_POS],
            (* goal 3 (of 4) *)
-           MATCH_MP_TAC IN_MEASURABLE_BOREL_MUL_INDICATOR >> rw []
-           >- (FULL_SIMP_TAC std_ss [measure_space_def]) \\
+           MATCH_MP_TAC IN_MEASURABLE_BOREL_MUL_INDICATOR >> rw [] \\
            MATCH_MP_TAC IN_MEASURABLE_BOREL_FN_PLUS \\
-           FULL_SIMP_TAC std_ss [integrable_def],
+           FULL_SIMP_TAC std_ss [integrable_def, measure_space_def],
            (* goal 4 (of 4) *)
-           MATCH_MP_TAC IN_MEASURABLE_BOREL_MUL_INDICATOR >> rw []
-           >- (FULL_SIMP_TAC std_ss [measure_space_def]) \\
+           MATCH_MP_TAC IN_MEASURABLE_BOREL_MUL_INDICATOR >> rw [] \\
            MATCH_MP_TAC IN_MEASURABLE_BOREL_FN_MINUS \\
-           FULL_SIMP_TAC std_ss [integrable_def] ]) >> Rewr' \\
+           FULL_SIMP_TAC std_ss [integrable_def, measure_space_def] ]) >> Rewr' \\
      MATCH_MP_TAC pos_fn_integral_cong >> rw [] >| (* 3 subgoals *)
      [ (* goal 1 (of 3) *)
        MATCH_MP_TAC le_add >> CONJ_TAC >> MATCH_MP_TAC le_mul \\
@@ -6340,8 +6350,7 @@ val martingale_alt_generator_shared_tactics_3 =
      [ (* goal 1 (of 2) *)
        MATCH_MP_TAC IN_MEASURABLE_BOREL_ADD' \\
        qexistsl_tac [‘fn_plus (u M)’, ‘fn_minus (u N)’] >> simp [] \\
-       CONJ_TAC >- FULL_SIMP_TAC std_ss [measure_space_def] \\
-       FULL_SIMP_TAC std_ss [integrable_def] \\
+       FULL_SIMP_TAC std_ss [integrable_def, measure_space_def] \\
        PROVE_TAC [IN_MEASURABLE_BOREL_FN_PLUS, IN_MEASURABLE_BOREL_FN_MINUS],
        (* goal 2 (of 2) *)
        MATCH_MP_TAC le_add >> rw [FN_PLUS_POS, FN_MINUS_POS] ])
@@ -6375,6 +6384,7 @@ Theorem martingale_alt_generator :
              (integral m (\x. u i x * indicator_fn s x) =
               integral m (\x. u j x * indicator_fn s x)))
 Proof
+ (* expectations: ‘A i s - B i s = A j s - B j s’ *)
     martingale_alt_generator_shared_tactics_1
  (* stage work on transforming the goal into equivalence of two measures *)
  >> Know ‘!i j s. (A i s - B i s = A j s - B j s <=>
@@ -6541,9 +6551,9 @@ QED
 (*  The Function Spaces L^p and Important Inequalities [1, Chapter 13]       *)
 (* ------------------------------------------------------------------------- *)
 
-(* The L^p function space (1 <= p) *)
-Definition function_space_def :
-    function_space p m =
+(* The L^p function space (1 <= p), was: ‘function_space’ *)
+Definition lp_space_def :
+    lp_space p m =
       {f | f IN measurable (m_space m,measurable_sets m) Borel /\
            if p = PosInf then
              ?c. 0 < c /\ measure m {x | x IN m_space m /\ c <= abs (f x)} = 0
@@ -6552,23 +6562,23 @@ Definition function_space_def :
 End
 
 (* The most common function spaces (L^1 and L^2) *)
-Overload L1_space = “function_space 1”
-Overload L2_space = “function_space 2”
+Overload L1_space = “lp_space 1”
+Overload L2_space = “lp_space 2”
 
-(* alternative definition of ‘function_space’ when p is finite *)
-Theorem function_space_alt_finite :
+(* alternative definition of ‘lp_space’ when p is finite *)
+Theorem lp_space_alt_finite :
     !p m f. 1 <= p /\ p <> PosInf ==>
-           (f IN function_space p m <=>
+           (f IN lp_space p m <=>
             f IN measurable (m_space m,measurable_sets m) Borel /\
             pos_fn_integral m (\x. (abs (f x)) powr p) <> PosInf)
 Proof
-    rw [function_space_def]
+    rw [lp_space_def]
 QED
 
-(* alternative definition of ‘function_space’ when p is infinite *)
-Theorem function_space_alt_infinite :
+(* alternative definition of ‘lp_space’ when p is infinite *)
+Theorem lp_space_alt_infinite :
     !m f. measure_space m ==>
-         (f IN function_space PosInf m <=>
+         (f IN lp_space PosInf m <=>
           f IN measurable (m_space m,measurable_sets m) Borel /\
           ?c. 0 < c /\ AE x::m. abs (f x) < c)
 Proof
@@ -6589,7 +6599,7 @@ Proof
      HO_MATCH_MP_TAC AE_iff_null \\
      rw [extreal_lt_def])
  >> RW_TAC std_ss [null_set_def, extreal_lt_def]
- >> EQ_TAC >> rw [function_space_def, GSYM extreal_lt_def]
+ >> EQ_TAC >> rw [lp_space_def, GSYM extreal_lt_def]
  >> Q.EXISTS_TAC ‘c’
  >> FULL_SIMP_TAC std_ss [GSYM extreal_lt_def]
  >> METIS_TAC []
@@ -6609,7 +6619,7 @@ Proof
  >> Know ‘f IN L2_space m <=>
           f IN measurable (m_space m,measurable_sets m) Borel /\
           pos_fn_integral m (\x. (abs (f x)) powr 2) <> PosInf’
- >- (MATCH_MP_TAC function_space_alt_finite \\
+ >- (MATCH_MP_TAC lp_space_alt_finite \\
      rw [extreal_of_num_def, extreal_le_eq])
  >> Rewr'
  >> EQ_TAC
@@ -6655,6 +6665,8 @@ Theorem seminorm_eq_0 :
            (seminorm p m f = 0 <=> AE x::m. f x = 0)
 Proof
     rpt STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> rw [seminorm_normal]
  >> ‘0 < p’ by PROVE_TAC [lte_trans, lt_01]
  >> ‘0 <= p’ by PROVE_TAC [lt_imp_le]
@@ -6723,7 +6735,7 @@ Proof
 QED
 
 Theorem seminorm_not_infty :
-    !p m f. measure_space m /\ 1 <= p /\ p <> PosInf /\ f IN function_space p m ==>
+    !p m f. measure_space m /\ 1 <= p /\ p <> PosInf /\ f IN lp_space p m ==>
             seminorm p m f <> PosInf /\ seminorm p m f <> NegInf
 Proof
     rpt GEN_TAC >> STRIP_TAC
@@ -6732,7 +6744,7 @@ Proof
      MATCH_MP_TAC pos_not_neginf \\
      MATCH_MP_TAC seminorm_pos >> art [])
  >> RW_TAC std_ss [seminorm_normal]
- >> rfs [function_space_def]
+ >> rfs [lp_space_def]
  >> ‘0 < p’ by METIS_TAC [lte_trans, lt_01]
  >> ‘0 <= p’ by METIS_TAC [lt_imp_le]
  >> ‘p <> NegInf’ by PROVE_TAC [pos_not_neginf]
@@ -6760,6 +6772,25 @@ Proof
  >> rw [normal_powr]
 QED
 
+Theorem lp_space_alt_seminorm :
+    !p m f. measure_space m /\ 1 <= p /\ p <> PosInf ==>
+           (f IN lp_space p m <=>
+            f IN Borel_measurable (m_space m,measurable_sets m) /\
+            seminorm p m f < PosInf)
+Proof
+    RW_TAC std_ss [GSYM lt_infty]
+ >> EQ_TAC
+ >| [ (* goal 1 (of 2) *)
+      rpt STRIP_TAC >- rfs [lp_space_alt_finite] \\
+      METIS_TAC [seminorm_not_infty],
+      (* goao 2 (of 2) *)
+      rw [lp_space_alt_finite, seminorm_normal] \\
+      CCONTR_TAC \\
+     ‘0 < p’ by PROVE_TAC [lte_trans, lt_01] \\
+     ‘0 < inv p’ by PROVE_TAC [inv_pos'] \\
+      gs [infty_powr] ]
+QED
+
 (* Theorem 13.2 (Hoelder's inequality) [1, p.117]
 
    TODO: also prove the case for ‘p = PosInf’ (q = 1) or ‘q = PosInf’ (p = 1)
@@ -6767,7 +6798,7 @@ QED
 Theorem Hoelder_inequality :
     !m u v p q. measure_space m /\ 0 < p /\ 0 < q /\ inv(p) + inv(q) = 1 /\
                 p <> PosInf /\ q <> PosInf /\
-                u IN function_space p m /\ v IN function_space q m
+                u IN lp_space p m /\ v IN lp_space q m
             ==> integrable m (\x. u x * v x) /\
                 integral m (\x. abs (u x * v x)) <= seminorm p m u * seminorm q m v
 Proof
@@ -6781,7 +6812,7 @@ Proof
        by PROVE_TAC [seminorm_not_infty]
  >> ‘u IN measurable (m_space m,measurable_sets m) Borel /\
      v IN measurable (m_space m,measurable_sets m) Borel’
-       by gs [function_space_alt_finite]
+       by gs [lp_space_alt_finite]
  >> Suff ‘integral m (\x. abs (u x * v x)) <= seminorm p m u * seminorm q m v’
  >- (RW_TAC std_ss [] \\
      MATCH_MP_TAC integrable_from_abs >> ASM_SIMP_TAC std_ss [o_DEF] \\
@@ -6794,8 +6825,7 @@ Proof
            pos_fn_integral m g <> PosInf’
      >- (MATCH_MP_TAC integrable_pos >> rw [Abbr ‘g’, abs_pos]) >> Rewr' \\
      CONJ_TAC >- (MATCH_MP_TAC IN_MEASURABLE_BOREL_ABS \\
-                  Q.EXISTS_TAC ‘\x. u x * v x’ >> rw [Abbr ‘g’] \\
-                  FULL_SIMP_TAC std_ss [measure_space_def]) \\
+                  Q.EXISTS_TAC ‘\x. u x * v x’ >> rw [Abbr ‘g’]) \\
      Know ‘pos_fn_integral m g = integral m g’
      >- (ONCE_REWRITE_TAC [EQ_SYM_EQ] \\
          MATCH_MP_TAC integral_pos_fn >> rw [Abbr ‘g’, abs_pos]) >> Rewr' \\
@@ -6840,9 +6870,9 @@ Proof
            measure m {x | x IN m_space m /\ abs (u x * v x) <> 0} = 0’
      >- (HO_MATCH_MP_TAC pos_fn_integral_eq_0 >> rw [] \\
          MATCH_MP_TAC IN_MEASURABLE_BOREL_ABS \\
-         Q.EXISTS_TAC ‘\x. u x * v x’ >> rw [] >- fs [measure_space_def] \\
+         Q.EXISTS_TAC ‘\x. u x * v x’ >> rw [] \\
          MATCH_MP_TAC IN_MEASURABLE_BOREL_TIMES' \\
-         qexistsl_tac [‘u’, ‘v’] >> fs [measure_space_def]) >> Rewr' \\
+         qexistsl_tac [‘u’, ‘v’] >> simp []) >> Rewr' \\
      rw [abs_not_zero] \\
      Know ‘{x | x IN m_space m /\ u x <> 0} IN measurable_sets m’
      >- (‘{x | x IN m_space m /\ u x <> 0} = {x | u x <> 0} INTER m_space m’
@@ -6895,9 +6925,9 @@ Proof
            measure m {x | x IN m_space m /\ abs (u x * v x) <> 0} = 0’
      >- (HO_MATCH_MP_TAC pos_fn_integral_eq_0 >> rw [] \\
          MATCH_MP_TAC IN_MEASURABLE_BOREL_ABS \\
-         Q.EXISTS_TAC ‘\x. u x * v x’ >> rw [] >- fs [measure_space_def] \\
+         Q.EXISTS_TAC ‘\x. u x * v x’ >> rw [] \\
          MATCH_MP_TAC IN_MEASURABLE_BOREL_TIMES' \\
-         qexistsl_tac [‘u’, ‘v’] >> fs [measure_space_def]) >> Rewr' \\
+         qexistsl_tac [‘u’, ‘v’] >> simp []) >> Rewr' \\
      rw [abs_not_zero] \\
      Know ‘{x | x IN m_space m /\ v x <> 0} IN measurable_sets m’
      >- (‘{x | x IN m_space m /\ v x <> 0} = {x | v x <> 0} INTER m_space m’
@@ -7014,7 +7044,7 @@ Proof
        qexistsl_tac [‘\x. abs (u x) powr Normal P’, ‘inv P * inv r powr P’] \\
        RW_TAC std_ss [] >| (* 3 subgoals *)
        [ (* goal 3.1 (of 3) *)
-         FULL_SIMP_TAC std_ss [measure_space_def],
+         simp [],
          (* goal 3.2 (of 3) *)
          MATCH_MP_TAC IN_MEASURABLE_BOREL_ABS_POWR \\
         ‘0 <= P’ by rw [REAL_LT_IMP_LE] \\
@@ -7041,7 +7071,7 @@ Proof
        qexistsl_tac [‘\x. abs (v x) powr Normal Q’, ‘inv Q * inv r powr Q’] \\
        RW_TAC std_ss [] >| (* 3 subgoals *)
        [ (* goal 4.1 (of 3) *)
-         FULL_SIMP_TAC std_ss [measure_space_def],
+         simp [],
          (* goal 4.2 (of 3) *)
          MATCH_MP_TAC IN_MEASURABLE_BOREL_ABS_POWR \\
         ‘0 <= Q’ by rw [REAL_LT_IMP_LE] \\
@@ -7119,7 +7149,7 @@ Proof
       simp [] (* inv c * c = 1 *) \\
       MATCH_MP_TAC mul_linv_pos >> art [] \\
       Q.UNABBREV_TAC ‘c’ \\
-      METIS_TAC [function_space_alt_finite],
+      METIS_TAC [lp_space_alt_finite],
       (* goal 2 (of 2), symmetric with above *)
       Know ‘!x. abs (v x) / seminorm q m v = abs (v x) * inv (seminorm q m v)’
       >- (‘?r. 0 < r /\ seminorm q m v = Normal r’
@@ -7157,14 +7187,14 @@ Proof
       simp [] (* inv c * c = 1 *) \\
       MATCH_MP_TAC mul_linv_pos >> art [] \\
       Q.UNABBREV_TAC ‘c’ \\
-      METIS_TAC [function_space_alt_finite] ]
+      METIS_TAC [lp_space_alt_finite] ]
 QED
 
 (* A more convenient version (only the 2nd part) using ‘pos_fn_integral’ *)
 Theorem Hoelder_inequality' :
     !m u v p q. measure_space m /\ 0 < p /\ 0 < q /\ inv(p) + inv(q) = 1 /\
                 p <> PosInf /\ q <> PosInf /\
-                u IN function_space p m /\ v IN function_space q m
+                u IN lp_space p m /\ v IN lp_space q m
             ==> pos_fn_integral m (\x. abs (u x * v x)) <= seminorm p m u * seminorm q m v
 Proof
     rpt STRIP_TAC
@@ -7217,23 +7247,23 @@ QED
 (* This is the first part of Minkowski's inequality *)
 Theorem Minkowski_inequality_lemma[local] :
     !p m u v. measure_space m /\ 1 <= p /\ p <> PosInf /\
-              u IN function_space p m /\ v IN function_space p m
-          ==> (\x. u x + v x) IN function_space p m
+              u IN lp_space p m /\ v IN lp_space p m
+          ==> (\x. u x + v x) IN lp_space p m
 Proof
     rpt GEN_TAC >> STRIP_TAC
  >> ‘0 < p’ by PROVE_TAC [lte_trans, lt_01]
  >> ‘0 <= p’ by PROVE_TAC [lt_imp_le]
  >> ‘p <> NegInf’ by PROVE_TAC [pos_not_neginf]
- >> rw [function_space_alt_finite]
+ >> rw [lp_space_alt_finite]
  >- (MATCH_MP_TAC IN_MEASURABLE_BOREL_ADD' (* key result *) \\
      qexistsl_tac [‘u’, ‘v’] >> simp [] \\
-     rfs [function_space_alt_finite, measure_space_def])
+     rfs [lp_space_alt_finite, measure_space_def])
  >> REWRITE_TAC [lt_infty]
  >> MATCH_MP_TAC let_trans
  >> Q.EXISTS_TAC ‘pos_fn_integral m
                    (\x. 2 powr p * (abs (u x) powr p + abs (v x) powr p))’
  >> reverse CONJ_TAC (* easy goal first *)
- >- (rfs [function_space_alt_finite] \\
+ >- (rfs [lp_space_alt_finite] \\
      Know ‘?c. 0 <= c /\ 2 powr p = Normal c’
      >- (‘?r. 0 < r /\ p = Normal r’
             by METIS_TAC [extreal_cases, extreal_of_num_def, extreal_lt_eq] \\
@@ -7276,7 +7306,7 @@ Proof
  >> rw [powr_pos]
  >- (MATCH_MP_TAC le_mul >> art [powr_pos] \\
      MATCH_MP_TAC le_add >> art [powr_pos])
- >> rfs [function_space_alt_finite]
+ >> rfs [lp_space_alt_finite]
  >> Know ‘null_set m {x | x IN m_space m /\ abs (u x) powr p = PosInf} /\
           null_set m {x | x IN m_space m /\ abs (v x) powr p = PosInf}’
  >- (CONJ_TAC (* 2 subgoals, same tactics *) \\
@@ -7352,8 +7382,8 @@ QED
  *)
 Theorem Minkowski_inequality :
     !p m u v. measure_space m /\ 1 <= p /\ p <> PosInf /\
-              u IN function_space p m /\ v IN function_space p m
-          ==> (\x. u x + v x) IN function_space p m /\
+              u IN lp_space p m /\ v IN lp_space p m
+          ==> (\x. u x + v x) IN lp_space p m /\
               seminorm p m (\x. u x + v x) <= seminorm p m u + seminorm p m v
 Proof
     rpt GEN_TAC >> STRIP_TAC
@@ -7378,7 +7408,7 @@ Proof
  >- (POP_ORW \\
      MATCH_MP_TAC pos_fn_integral_mono_AE \\
      rw [le_mul, le_add, abs_pos, powr_pos] \\
-     rfs [function_space_alt_finite] \\
+     rfs [lp_space_alt_finite] \\
      Know ‘null_set m {x | x IN m_space m /\ abs (u x) powr p = PosInf} /\
            null_set m {x | x IN m_space m /\ abs (v x) powr p = PosInf}’
      >- (CONJ_TAC (* 2 subgoals, same tactics *) \\
@@ -7408,7 +7438,7 @@ Proof
           pos_fn_integral m (\x. abs (u x) * abs (u x + v x) powr (p - 1)) +
           pos_fn_integral m (\x. abs (v x) * abs (u x + v x) powr (p - 1))’
  >- (HO_MATCH_MP_TAC pos_fn_integral_add \\
-     rfs [function_space_alt_finite] \\
+     rfs [lp_space_alt_finite] \\
      rw [le_mul, abs_pos, powr_pos] >| (* 2 subgoals *)
      [ (* goal 1 (of 2) *)
        MATCH_MP_TAC IN_MEASURABLE_BOREL_TIMES \\
@@ -7473,8 +7503,8 @@ Proof
  >> ‘!x. 0 <= f x’ by rw [Abbr ‘f’, powr_pos]
  >> ‘!x. abs (f x) = f x’ by rw [abs_refl]
  >> RW_TAC std_ss []
- >> Know ‘f IN function_space q m’
- >- (rfs [function_space_alt_finite, Abbr ‘f’] \\
+ >> Know ‘f IN lp_space q m’
+ >- (rfs [lp_space_alt_finite, Abbr ‘f’] \\
      CONJ_TAC
      >- (HO_MATCH_MP_TAC IN_MEASURABLE_BOREL_ABS_POWR >> rw [sub_not_infty]) \\
     ‘!x. abs (abs (u x + v x) powr (p - 1)) = abs (u x + v x) powr (p - 1)’
@@ -7498,7 +7528,7 @@ Proof
  >> DISCH_TAC
  (* applying seminorm_eq_0 *)
  >> Cases_on ‘seminorm q m f = 0’
- >- (rfs [function_space_alt_finite, seminorm_eq_0] \\
+ >- (rfs [lp_space_alt_finite, seminorm_eq_0] \\
      Suff ‘seminorm p m (\x. u x + v x) = 0’
      >- (Rewr' >> MATCH_MP_TAC le_add >> rw [seminorm_pos]) \\
      Know ‘seminorm p m (\x. u x + v x) = 0 <=> AE x::m. u x + v x = 0’

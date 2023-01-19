@@ -39,8 +39,6 @@ val ASM_REAL_ARITH_TAC = REAL_ASM_ARITH_TAC; (* RealArith *)
 val DISC_RW_KILL = DISCH_TAC >> ONCE_ASM_REWRITE_TAC [] >> POP_ASSUM K_TAC;
 fun METIS ths tm = prove (tm, METIS_TAC ths);
 
-val _ = hide "I";
-
 (* ************************************************************************* *)
 (* Basic Definitions                                                         *)
 (* ************************************************************************* *)
@@ -106,26 +104,25 @@ val _ = Unicode.unicode_version {u = UTF8.chr 0x222B ^ Unicode.UChar.sup_plus,
 val _ = TeX_notation {hol = UTF8.chr 0x222B ^ Unicode.UChar.sup_plus,
                       TeX = ("\\HOLTokenIntegralPlus{}", 1)};
 
-(* Lebesgue integral of arbitrary function is the integrals of positive parts minus
-   negative parts. Renamed to `L_integral` (Lebesgue integral) to prevent conflicts
-   with integrationTheory.
- *)
-Definition integral_def :
-    L_integral m f = pos_fn_integral m (fn_plus f) - pos_fn_integral m (fn_minus f)
-End
+val _ = hide "integral";
 
-val _ = overload_on ("integral", ``L_integral``);
+Definition integral_def :
+    integral m f = pos_fn_integral m (fn_plus f) - pos_fn_integral m (fn_minus f)
+End
 
 (* INTEGRAL *)
 val _ = Unicode.unicode_version {u = UTF8.chr 0x222B, tmnm = "integral"};
 val _ = TeX_notation {hol = UTF8.chr 0x222B, TeX = ("\\HOLTokenIntegral{}", 1)};
 
 (* Lebesgue integrable = the integral is specified (ie. no `PosInf - PosInf`) *)
-val integrable_def = Define
-   `integrable m f =
+val _ = hide "integrable";
+
+Definition integrable_def :
+    integrable m f =
        (f IN measurable (m_space m,measurable_sets m) Borel /\
         pos_fn_integral m (fn_plus f) <> PosInf /\
-        pos_fn_integral m (fn_minus f) <> PosInf)`;
+        pos_fn_integral m (fn_minus f) <> PosInf)
+End
 
 val finite_space_integral_def = Define
    `finite_space_integral m f =
@@ -3025,24 +3022,27 @@ Theorem lemma_fn_seq_in_psfis[local] :
             (fn_seq_integral m f n IN psfis m (fn_seq m f n))
 Proof
     RW_TAC std_ss [IN_psfis_eq, pos_simple_fn_def]
- >> Q.EXISTS_TAC `count (4 ** n + 1)`
- >> Q.EXISTS_TAC `(\k. if k IN count (4 ** n) then
+ >> qexistsl_tac [`count (4 ** n + 1)`,
+                  `(\k. if k IN count (4 ** n) then
                           {x | x IN m_space m /\ &k / 2 pow n <= f x /\
                                f x < (&k + 1) / 2 pow n}
-                       else {x | x IN m_space m /\ 2 pow n <= f x} )`
- >> Q.EXISTS_TAC `(\k. if k IN count (4 ** n) then &k / 2 pow n else 2 pow n )`
- >> `FINITE (count (4 ** n))` by RW_TAC std_ss [FINITE_COUNT]
- >> `FINITE (count (4 ** n + 1))` by RW_TAC std_ss [FINITE_COUNT]
+                        else {x | x IN m_space m /\ 2 pow n <= f x})`,
+                  `(\k. if k IN count (4 ** n) then &k / 2 pow n else 2 pow n)`]
+ >> `FINITE (count (4 ** n)) /\
+     FINITE (count (4 ** n + 1))` by RW_TAC std_ss [FINITE_COUNT]
  >> `!n. 0:real < 2 pow n` by RW_TAC real_ss [REAL_POW_LT]
  >> `!n. 0:real <> 2 pow n` by RW_TAC real_ss [REAL_LT_IMP_NE]
  >> `!n k. &k / 2 pow n = Normal (&k / 2 pow n)`
       by METIS_TAC [extreal_of_num_def,extreal_pow_def,extreal_div_eq]
  >> `!n z. Normal z / 2 pow n = Normal (z / 2 pow n)`
       by METIS_TAC [extreal_pow_def,extreal_div_eq,extreal_of_num_def]
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
+ (* flatten all CONJ *)
+ >> ASM_SIMP_TAC std_ss [GSYM CONJ_ASSOC]
+ >> CONJ_TAC >- RW_TAC std_ss [lemma_fn_seq_positive]
  >> CONJ_TAC
- >- (CONJ_TAC >- RW_TAC std_ss [lemma_fn_seq_positive] \\
-     CONJ_TAC
-     >- (RW_TAC real_ss [fn_seq_def, IN_COUNT, GSYM ADD1, COUNT_SUC] \\
+ >- (RW_TAC real_ss [fn_seq_def, IN_COUNT, GSYM ADD1, COUNT_SUC] \\
         `(\i. Normal (if i < 4 ** n then &i / 2 pow n else 2 pow n) *
               indicator_fn (if i < 4 ** n then
                    {x | x IN m_space m /\ Normal (&i / 2 pow n) <= f x /\
@@ -3090,28 +3090,27 @@ Proof
           reverse CONJ_TAC
           >- (RW_TAC std_ss [indicator_fn_def,mul_rone,mul_rzero,num_not_infty] \\
               METIS_TAC [extreal_of_num_def,extreal_pow_def,extreal_not_infty]) \\
-          FULL_SIMP_TAC std_ss [EXTREAL_SUM_IMAGE_NOT_INFTY]) \\
-     CONJ_TAC
-     >- (RW_TAC real_ss []
+          FULL_SIMP_TAC std_ss [EXTREAL_SUM_IMAGE_NOT_INFTY])
+ >> CONJ_TAC
+ >- (RW_TAC real_ss []
          >- (`{x | x IN m_space m /\ Normal (&i / 2 pow n) <= f x /\ f x < (&i + 1) / 2 pow n} =
               {x | Normal (&i / 2 pow n) <= f x /\ f x < Normal (&(i + 1) / 2 pow n)} INTER m_space m`
                  by (RW_TAC std_ss [EXTENSION,GSPECIFICATION,IN_INTER,CONJ_COMM] \\
                     `(&i + 1:extreal) = &(i + 1)`
                        by RW_TAC std_ss [extreal_add_def,extreal_of_num_def,REAL_ADD] \\
-                     METIS_TAC []) \\
+                     METIS_TAC []) >> POP_ORW \\
              METIS_TAC [IN_MEASURABLE_BOREL_ALL, m_space_def, measurable_sets_def,
                         space_def, subsets_def]) \\
         `{x | x IN m_space m /\ 2 pow n <= f x} = {x | Normal (2 pow n) <= f x} INTER m_space m`
             by RW_TAC std_ss [EXTENSION, GSPECIFICATION, IN_INTER, CONJ_COMM,
-                              extreal_of_num_def, extreal_pow_def] \\
+                              extreal_of_num_def, extreal_pow_def] >> POP_ORW \\
          METIS_TAC [IN_MEASURABLE_BOREL_ALL, m_space_def, measurable_sets_def,
-                    space_def, subsets_def]) \\
-     CONJ_TAC >- RW_TAC std_ss [] \\
-     CONJ_TAC
-     >- RW_TAC real_ss [extreal_of_num_def,extreal_pow_def,extreal_le_def,
-                        REAL_LT_IMP_LE,POW_POS,REAL_LE_DIV] \\
-     CONJ_TAC
-     >- (RW_TAC real_ss [DISJOINT_DEF,IN_COUNT,IN_INTER,EXTENSION,GSPECIFICATION] >|
+                    space_def, subsets_def])
+ >> CONJ_TAC
+ >- RW_TAC real_ss [extreal_of_num_def,extreal_pow_def,extreal_le_def,
+                    REAL_LT_IMP_LE,POW_POS,REAL_LE_DIV]
+ >> CONJ_TAC
+ >- (RW_TAC real_ss [DISJOINT_DEF,IN_COUNT,IN_INTER,EXTENSION,GSPECIFICATION] >|
          [ reverse EQ_TAC >- RW_TAC std_ss [NOT_IN_EMPTY] \\
            RW_TAC real_ss [] \\
            RW_TAC std_ss [NOT_IN_EMPTY] \\
@@ -3153,8 +3152,10 @@ Proof
               >> `&(j + 1) / 2 pow n <= 2 pow n` by RW_TAC std_ss [extreal_of_num_def,extreal_add_def,extreal_pow_def,extreal_div_eq,extreal_lt_eq,extreal_le_def]
              >> `(&j + 1) = &(j + 1)` by METIS_TAC [extreal_of_num_def,extreal_add_def,REAL_ADD]
              >> METIS_TAC [lte_trans,extreal_lt_def]])
-     >> RW_TAC std_ss [EXTENSION,IN_BIGUNION_IMAGE,GSPECIFICATION]
-     >> EQ_TAC
+ (* BIGUNION (IMAGE ... = m_space m *)
+ >> CONJ_TAC
+ >- (RW_TAC std_ss [EXTENSION,IN_BIGUNION_IMAGE,GSPECIFICATION] \\
+     EQ_TAC
      >- (RW_TAC std_ss []
          >> Cases_on `k IN count (4 ** n)`
          >- FULL_SIMP_TAC std_ss [GSPECIFICATION,lemma_fn_3]
@@ -3166,6 +3167,7 @@ Proof
      >> Q.EXISTS_TAC `k`
      >> FULL_SIMP_TAC real_ss [IN_COUNT,GSPECIFICATION]
      >> METIS_TAC [])
+ (* fn_seq_integral m f n = pos_simple_fn_integral m (count (4 ** n + 1)) _ _ *)
   >> RW_TAC real_ss [pos_simple_fn_integral_def,fn_seq_integral_def]
   >> `4 ** n + 1 = SUC (4 ** n)` by RW_TAC real_ss []
   >> ASM_SIMP_TAC std_ss []
@@ -3235,10 +3237,8 @@ Proof
   >> FULL_SIMP_TAC std_ss [EXTREAL_SUM_IMAGE_NOT_INFTY]
 QED
 
-(* This huge theorem (from HVG) cannot be put in borelTheory as it depends on
-   several lemmas here.
-
-   NOTE: IN_MEASURABLE_BOREL_TIMES is not included in this result.
+(* This huge theorem (from HVG Concordia) cannot be put into borelTheory as it
+   depends on several lemmas here.
  *)
 Theorem BOREL_INDUCT : (* was: Induct_on_Borel_functions *)
   !f m P.
@@ -3258,10 +3258,13 @@ Theorem BOREL_INDUCT : (* was: Induct_on_Borel_functions *)
           (!i x. 0 <= u i x) /\ (!x. mono_increasing (\i. u i x)) /\
           (!i. P (u i)) ==> P (\x. sup (IMAGE (\i. u i x) UNIV))) ==> P f
 Proof
-  RW_TAC std_ss [] THEN FIRST_ASSUM MATCH_MP_TAC THEN
-  Q.EXISTS_TAC `(\x. sup (IMAGE (\i. fn_seq m f i x) univ(:num)))` THEN
-  ASM_SIMP_TAC std_ss [lemma_fn_seq_sup] THEN
-
+    RW_TAC std_ss []
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
+ >> FIRST_ASSUM MATCH_MP_TAC
+ >> Q.EXISTS_TAC `(\x. sup (IMAGE (\i. fn_seq m f i x) univ(:num)))`
+ >> ASM_SIMP_TAC std_ss [lemma_fn_seq_sup]
+ THEN
   Know `!i. (\x. SIGMA
           (\k. &k / 2 pow i *
              indicator_fn {x |
@@ -3837,7 +3840,10 @@ Theorem measurable_sequence :
                   (pos_fn_integral m (fn_minus f) =
                    sup (IMAGE (\i. pos_fn_integral m (gi i)) UNIV)))
 Proof
-    rpt STRIP_TAC
+    rpt GEN_TAC >> STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
+ >> CONJ_TAC
  >- (Q.EXISTS_TAC `(\n. fn_seq m (fn_plus f) n)` \\
      Q.EXISTS_TAC `(\n. fn_seq_integral m (fn_plus f) n)` \\
      CONJ_TAC >- RW_TAC std_ss [FN_PLUS_POS, lemma_fn_seq_mono_increasing] \\
@@ -4146,6 +4152,31 @@ Proof
  >- RW_TAC std_ss [le_add]
  >> RW_TAC std_ss [FUN_EQ_THM]
  >> METIS_TAC [IN_psfis_eq, psfis_add, pos_fn_integral_pos_simple_fn]
+QED
+
+Theorem pos_fn_integral_add3 :
+    !m f g h. measure_space m /\
+             (!x. x IN m_space m ==> 0 <= f x) /\
+             (!x. x IN m_space m ==> 0 <= g x) /\
+             (!x. x IN m_space m ==> 0 <= h x) /\
+              f IN measurable (m_space m,measurable_sets m) Borel /\
+              g IN measurable (m_space m,measurable_sets m) Borel /\
+              h IN measurable (m_space m,measurable_sets m) Borel
+          ==> pos_fn_integral m (\x. f x + g x + h x) =
+              pos_fn_integral m f + pos_fn_integral m g + pos_fn_integral m h
+Proof
+    rpt STRIP_TAC
+ >> Know ‘pos_fn_integral m (\x. f x + g x + h x) =
+          pos_fn_integral m (\x. f x + g x) +
+          pos_fn_integral m h’
+ >- (HO_MATCH_MP_TAC pos_fn_integral_add >> rw [le_add] \\
+     MATCH_MP_TAC IN_MEASURABLE_BOREL_ADD' \\
+     qexistsl_tac [‘f’, ‘g’] >> rw [] \\
+     fs [measure_space_def])
+ >> Rewr'
+ >> Suff ‘pos_fn_integral m (\x. f x + g x) =
+          pos_fn_integral m f + pos_fn_integral m g’ >- rw []
+ >> MATCH_MP_TAC pos_fn_integral_add >> art []
 QED
 
 (* added ‘x IN m_space m’. used by martingaleTheory.EXISTENCE_OF_PROD_MEASURE *)
@@ -4705,35 +4736,28 @@ QED
 
 Theorem pos_fn_integral_cmul_infty :
     !m s. measure_space m /\ s IN measurable_sets m ==>
-         (pos_fn_integral m (\x. PosInf * indicator_fn s x) = PosInf * (measure m s))
+          pos_fn_integral m (\x. PosInf * indicator_fn s x) = PosInf * measure m s
 Proof
     RW_TAC std_ss []
  >> Q.ABBREV_TAC `fi = (\i:num x. &i)`
  >> Q.ABBREV_TAC `f = (\x. PosInf)`
  >> `!x. x IN m_space m ==> (sup (IMAGE (\i. fi i x) UNIV) = f x)`
-      by (RW_TAC std_ss [] \\
-          Q.UNABBREV_TAC `fi` \\
-          Q.UNABBREV_TAC `f` \\
-          RW_TAC std_ss [] \\
+      by (RW_TAC std_ss [Abbr ‘fi’, Abbr ‘f’] \\
           Suff `IMAGE (\i. &i) univ(:num) = (\x. ?n. x = &n)`
           >- RW_TAC std_ss [sup_num] \\
           RW_TAC std_ss [EXTENSION, IN_IMAGE, IN_ABS, IN_UNIV])
  >> `!x. x IN m_space m ==> mono_increasing (\i. fi i x)`
       by (RW_TAC std_ss [ext_mono_increasing_def] \\
-          Q.UNABBREV_TAC `fi` \\
-          RW_TAC real_ss [extreal_of_num_def, extreal_le_def])
+          RW_TAC real_ss [Abbr ‘fi’, extreal_of_num_def, extreal_le_def])
  >> `!i x. x IN m_space m ==> 0 <= fi i x`
-      by (Q.UNABBREV_TAC `fi` \\
-          RW_TAC real_ss [extreal_of_num_def,extreal_le_def])
+      by RW_TAC real_ss [Abbr ‘fi’, extreal_of_num_def,extreal_le_def]
  >> `!x. x IN m_space m ==> 0 <= f x` by METIS_TAC [le_infty]
  >> `!i. fi i IN measurable (m_space m, measurable_sets m) Borel`
       by (RW_TAC std_ss [] \\
           MATCH_MP_TAC IN_MEASURABLE_BOREL_CONST \\
           METIS_TAC [measure_space_def])
  >> (MP_TAC o Q.SPECL [`m`,`f`,`fi`,`s`]) lebesgue_monotone_convergence_subset
- >> RW_TAC std_ss []
- >> Q.UNABBREV_TAC `f`
- >> Q.UNABBREV_TAC `fi`
+ >> RW_TAC std_ss [Abbr ‘f’, Abbr ‘fi’]
  >> FULL_SIMP_TAC real_ss []
  >> RW_TAC real_ss [extreal_of_num_def, pos_fn_integral_cmul_indicator]
  >> RW_TAC std_ss [Once mul_comm]
@@ -4766,8 +4790,8 @@ Proof
      MATCH_MP_TAC pos_fn_integral_pos >> art [])
  >> DISCH_THEN (MP_TAC o (MATCH_MP ext_suminf_def)) >> Rewr'
  >> Know `!x. x IN m_space m ==>
-             (suminf (\i. f i x) =
-              sup (IMAGE (\n. SIGMA (\i. f i x) (count n)) univ(:num)))`
+              suminf (\i. f i x) =
+              sup (IMAGE (\n. SIGMA (\i. f i x) (count n)) UNIV)`
  >- (rpt STRIP_TAC >> MATCH_MP_TAC ext_suminf_def \\
      RW_TAC std_ss []) >> DISCH_TAC
  >> Know ‘pos_fn_integral m (\x. suminf (\i. f i x)) =
@@ -4787,8 +4811,7 @@ Proof
  >> CONJ_TAC
  >- (GEN_TAC \\
      MATCH_MP_TAC (INST_TYPE [beta |-> ``:num``] IN_MEASURABLE_BOREL_SUM) \\
-     qexistsl_tac [`f`, `count i`] >> rw [FINITE_COUNT]
-     >- FULL_SIMP_TAC std_ss [measure_space_def] \\
+     qexistsl_tac [`f`, `count i`] >> rw [FINITE_COUNT] \\
      METIS_TAC [lt_infty, lte_trans, num_not_infty])
  >> CONJ_TAC >- RW_TAC std_ss [FINITE_COUNT, EXTREAL_SUM_IMAGE_POS]
  >> RW_TAC std_ss [ext_mono_increasing_def]
@@ -4834,6 +4857,8 @@ Theorem lebesgue_monotone_convergence_AE :
          sup (IMAGE (\i. pos_fn_integral m (fn_plus (fi i))) univ(:num)))
 Proof
     RW_TAC std_ss [FN_PLUS_ALT']
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> FULL_SIMP_TAC std_ss [AE_ALT, GSPECIFICATION]
  >> Q.ABBREV_TAC `ff = (\i x. if x IN m_space m DIFF N then fi i x else 0)`
  >> Know `AE x::m. !i. ff i x = fi i x`
@@ -4883,9 +4908,10 @@ Proof
          ONCE_REWRITE_TAC [METIS [subsets_def]
            ``measurable_sets m = subsets (m_space m, measurable_sets m)``] \\
         `{x | x IN m_space m /\ x IN m_space m DIFF N} = m_space m DIFF N` by SET_TAC [] \\
-         POP_ASSUM (fn th => REWRITE_TAC [th]) >> MATCH_MP_TAC ALGEBRA_DIFF \\
+         POP_ASSUM (fn th => REWRITE_TAC [th, SIGMA_ALGEBRA_BOREL]) \\
+         MATCH_MP_TAC SIGMA_ALGEBRA_DIFF \\
          FULL_SIMP_TAC std_ss [subsets_def, GSYM IN_NULL_SET, null_sets, GSPECIFICATION] \\
-         METIS_TAC [MEASURE_SPACE_MSPACE_MEASURABLE, measure_space_def, sigma_algebra_def]) \\
+         METIS_TAC [MEASURE_SPACE_MSPACE_MEASURABLE, measure_space_def]) \\
      CONJ_TAC
      >- (rpt STRIP_TAC \\
          Q.UNABBREV_TAC `ff` >> SIMP_TAC std_ss [ext_mono_increasing_def] \\
@@ -5019,6 +5045,8 @@ Theorem integral_split' :
 Proof
     RW_TAC std_ss [integrable_def, integral_def,
                    fn_plus_mul_indicator, fn_minus_mul_indicator]
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> Know ‘pos_fn_integral m (fn_plus f) =
           pos_fn_integral m (\x. fn_plus f x * indicator_fn s x) +
           pos_fn_integral m (\x. fn_plus f x * indicator_fn (m_space m DIFF s) x)’
@@ -5163,6 +5191,8 @@ val integrable_infty = store_thm
   ``!m f s. measure_space m /\ integrable m f /\ s IN measurable_sets m /\
            (!x. x IN s ==> (f x = PosInf)) ==> (measure m s = 0)``,
   RW_TAC std_ss [integrable_def]
+  >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
   >> (MP_TAC o Q.SPECL [`m`,`fn_plus f`,`s`]) pos_fn_integral_split
   >> RW_TAC std_ss [IN_MEASURABLE_BOREL_FN_PLUS,DISJOINT_DIFF,FN_PLUS_POS]
   >> `(\x. fn_plus f x * indicator_fn s x) = (\x. PosInf * indicator_fn s x)`
@@ -5180,29 +5210,30 @@ val integrable_infty = store_thm
       by METIS_TAC [lt_infty,lte_trans,num_not_infty]
   >> FULL_SIMP_TAC std_ss [mul_lposinf, lt_imp_ne, add_infty]);
 
-val integrable_infty_null = store_thm
-  ("integrable_infty_null",
-  ``!m f. measure_space m /\ integrable m f ==>
-          null_set m {x | x IN m_space m /\ (f x = PosInf)}``,
-  RW_TAC std_ss []
-  >> Q.ABBREV_TAC `s = {x | x IN m_space m /\ (f x = PosInf)} `
-  >> Suff `s IN measurable_sets m`
-  >- (RW_TAC std_ss [null_set_def]
+Theorem integrable_infty_null :
+    !m f. measure_space m /\ integrable m f ==>
+          null_set m {x | x IN m_space m /\ (f x = PosInf)}
+Proof
+    RW_TAC std_ss []
+ >> Q.ABBREV_TAC `s = {x | x IN m_space m /\ (f x = PosInf)} `
+ >> Suff `s IN measurable_sets m`
+ >- (RW_TAC std_ss [null_set_def]
       >> MATCH_MP_TAC integrable_infty
       >> Q.EXISTS_TAC `f`
       >> RW_TAC std_ss []
       >> Q.UNABBREV_TAC `s`
       >> FULL_SIMP_TAC std_ss [GSPECIFICATION])
-  >> `f IN measurable (m_space m, measurable_sets m) Borel`
+ >> `f IN measurable (m_space m, measurable_sets m) Borel`
       by FULL_SIMP_TAC std_ss [integrable_def]
-  >> (MP_TAC o Q.SPEC `PosInf` o UNDISCH)
-      (REWRITE_RULE [subsets_def, space_def, IN_FUNSET, IN_UNIV]
-                    (Q.SPECL [`f`,`(m_space m, measurable_sets m)`] IN_MEASURABLE_BOREL_ALT8))
-  >> Suff `s = {x | f x = PosInf} INTER m_space m`
-  >- METIS_TAC []
-  >> Q.UNABBREV_TAC `s`
-  >> RW_TAC std_ss [EXTENSION,IN_INTER,GSPECIFICATION]
-  >> METIS_TAC []);
+ >> MP_TAC (Q.SPECL [`f`,`(m_space m, measurable_sets m)`] IN_MEASURABLE_BOREL_ALT8)
+ >> rw [MEASURE_SPACE_SIGMA_ALGEBRA]
+ >> POP_ASSUM (MP_TAC o (Q.SPEC `PosInf`))
+ >> Suff `s = {x | f x = PosInf} INTER m_space m`
+ >- METIS_TAC []
+ >> Q.UNABBREV_TAC `s`
+ >> RW_TAC std_ss [EXTENSION,IN_INTER,GSPECIFICATION]
+ >> METIS_TAC []
+QED
 
 Theorem pos_fn_integral_infty_null :
     !m f. measure_space m /\ (!x. x IN m_space m ==> 0 <= f x) /\
@@ -5294,21 +5325,27 @@ Proof
  >> METIS_TAC [pos_fn_integral_mono, FN_PLUS_POS, FN_MINUS_POS, lt_infty, let_trans]
 QED
 
-val integrable_fn_plus = store_thm
-  ("integrable_fn_plus",
-  ``!m f. measure_space m /\ integrable m f ==> integrable m (fn_plus f)``,
-    RW_TAC std_ss [integrable_def, GSYM fn_plus_def, FN_PLUS_POS, FN_PLUS_POS_ID,
+Theorem integrable_fn_plus :
+    !m f. measure_space m /\ integrable m f ==> integrable m (fn_plus f)
+Proof
+    rpt STRIP_TAC >> POP_ASSUM MP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
+ >> RW_TAC std_ss [integrable_def, GSYM fn_plus_def, FN_PLUS_POS, FN_PLUS_POS_ID,
                    IN_MEASURABLE_BOREL_FN_PLUS, GSYM fn_minus_def, FN_MINUS_POS_ZERO,
                    pos_fn_integral_zero, num_not_infty]
- >> METIS_TAC []);
+QED
 
-val integrable_fn_minus = store_thm
-  ("integrable_fn_minus",
-  ``!m f. measure_space m /\ integrable m f ==> integrable m (fn_minus f)``,
-    RW_TAC std_ss [integrable_def, GSYM fn_minus_def, FN_MINUS_POS, FN_PLUS_POS_ID,
+Theorem integrable_fn_minus :
+    !m f. measure_space m /\ integrable m f ==> integrable m (fn_minus f)
+Proof
+    rpt STRIP_TAC >> POP_ASSUM MP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
+ >> RW_TAC std_ss [integrable_def, GSYM fn_minus_def, FN_MINUS_POS, FN_PLUS_POS_ID,
                    IN_MEASURABLE_BOREL_FN_MINUS, GSYM fn_plus_def, FN_MINUS_POS_ZERO,
                    pos_fn_integral_zero, num_not_infty]
- >> METIS_TAC []);
+QED
 
 (* added `measure m (m_space m) < PosInf` into antecedents, otherwise not true *)
 val integrable_const = store_thm
@@ -5355,12 +5392,15 @@ val integrable_zero = store_thm
                     pos_fn_integral_zero, num_not_infty]);
 
 (* Theorem 10.3 (i) <-> (ii) [1, p.84] *)
-val integrable_plus_minus = store_thm
-  ("integrable_plus_minus",
-  ``!m f. measure_space m ==>
+Theorem integrable_plus_minus :
+    !m f. measure_space m ==>
          (integrable m f <=> f IN measurable (m_space m, measurable_sets m) Borel /\
-                             integrable m (fn_plus f) /\ integrable m (fn_minus f))``,
-    RW_TAC std_ss [integrable_def, GSYM fn_plus_def, GSYM fn_minus_def]
+                             integrable m (fn_plus f) /\ integrable m (fn_minus f))
+Proof
+    rpt STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
+ >> RW_TAC std_ss [integrable_def, GSYM fn_plus_def, GSYM fn_minus_def]
  >> `fn_plus (fn_minus f) = fn_minus f` by METIS_TAC [FN_MINUS_POS, FN_PLUS_POS_ID]
  >> `fn_minus (fn_minus f) = (\x. 0)` by METIS_TAC [FN_MINUS_POS, FN_MINUS_POS_ZERO]
  >> `fn_plus (fn_plus f) = fn_plus f` by METIS_TAC [FN_PLUS_POS, FN_PLUS_POS_ID]
@@ -5369,7 +5409,8 @@ val integrable_plus_minus = store_thm
  >> `(\x. fn_plus f x) = fn_plus f` by METIS_TAC []
  >> EQ_TAC
  >> RW_TAC std_ss [IN_MEASURABLE_BOREL_FN_PLUS, IN_MEASURABLE_BOREL_FN_MINUS,
-                   pos_fn_integral_zero, num_not_infty]);
+                   pos_fn_integral_zero, num_not_infty]
+QED
 
 (* added ‘x IN m_space m’ *)
 Theorem integrable_add_pos :
@@ -5377,7 +5418,10 @@ Theorem integrable_add_pos :
            (!x. x IN m_space m ==> 0 <= f x) /\
            (!x. x IN m_space m ==> 0 <= g x) ==> integrable m (\x. f x + g x)
 Proof
-    RW_TAC std_ss []
+    rpt STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
+ >> RW_TAC std_ss []
  >> `!x. x IN m_space m ==> 0 <= (\x. f x + g x) x` by RW_TAC real_ss [le_add]
  >> `f IN measurable (m_space m,measurable_sets m) Borel` by METIS_TAC [integrable_def]
  >> `g IN measurable (m_space m,measurable_sets m) Borel` by METIS_TAC [integrable_def]
@@ -5515,6 +5559,8 @@ Theorem integrable_add :
         ==> integrable m (\x. f x + g x)
 Proof
     RW_TAC std_ss []
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> Know `(\x. f x + g x) IN measurable (m_space m, measurable_sets m) Borel`
  >- (MATCH_MP_TAC IN_MEASURABLE_BOREL_ADD \\
      qexistsl_tac [`f`, `g`] >> simp [] \\
@@ -5534,10 +5580,12 @@ Proof
  >> METIS_TAC []
 QED
 
-val integrable_cmul = store_thm
-  ("integrable_cmul",
-  ``!m f c. measure_space m /\ integrable m f ==> integrable m (\x. Normal c * f x)``,
-    RW_TAC std_ss []
+Theorem integrable_cmul :
+    !m f c. measure_space m /\ integrable m f ==> integrable m (\x. Normal c * f x)
+Proof
+    rpt STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> Cases_on `c = 0`
  >- RW_TAC std_ss [integrable_zero, mul_lzero, GSYM extreal_of_num_def]
  >> `(\x. Normal c * f x) IN measurable (m_space m,measurable_sets m) Borel`
@@ -5574,7 +5622,8 @@ val integrable_cmul = store_thm
  >> RW_TAC std_ss [extreal_ainv_def]
  >> `0 <= -c` by METIS_TAC [REAL_LT_IMP_LE, REAL_LE_NEG, REAL_NEG_0]
  >> RW_TAC std_ss [pos_fn_integral_cmul, FN_PLUS_POS]
- >> METIS_TAC [mul_not_infty, integrable_def]);
+ >> METIS_TAC [mul_not_infty, integrable_def]
+QED
 
 (* NOTE: added `!x. x IN m_space m ==> f x <> NegInf /\ g x <> PosInf`, one way
    to make sure that `f - g` is defined (i.e. f/g cannot be the same infinites *)
@@ -5620,13 +5669,11 @@ val integrable_indicator_pow = store_thm (* new *)
  >> Q.EXISTS_TAC `indicator_fn s`
  >> RW_TAC std_ss [integrable_indicator, indicator_fn_def, one_pow, zero_pow]);
 
-(* this result is used to simplify the definition of `RN_deriv`,
-
-   added `!x. x IN m_space m ==> f x <> NegInf /\ f x <> PosInf`
+(* deleted ‘measure m s < PosInf’ and
+   deleted ‘!x. x IN m_space m ==> f x <> NegInf /\ f x <> PosInf’
  *)
 Theorem integrable_mul_indicator :
-    !m s f. measure_space m /\ s IN measurable_sets m /\ measure m s < PosInf /\
-            (!x. x IN m_space m ==> f x <> NegInf /\ f x <> PosInf) /\
+    !m s f. measure_space m /\ s IN measurable_sets m /\
             integrable m f ==> integrable m (\x. f x * indicator_fn s x)
 Proof
     rpt STRIP_TAC
@@ -5638,15 +5685,8 @@ Proof
  >- (RW_TAC std_ss [] \\
      Cases_on `x IN s` >- ASM_SIMP_TAC std_ss [indicator_fn_def, mul_rone, le_refl] \\
      ASM_SIMP_TAC std_ss [indicator_fn_def, mul_rzero, abs_0, abs_pos])
- >> MATCH_MP_TAC IN_MEASURABLE_BOREL_TIMES
- >> BETA_TAC
- >> qexistsl_tac [`f`, `indicator_fn s`]
- >> ASM_SIMP_TAC std_ss [space_def]
- >> CONJ_TAC >- PROVE_TAC [integrable_def]
- >> MATCH_MP_TAC IN_MEASURABLE_BOREL_INDICATOR
- >> Q.EXISTS_TAC `s`
- >> CONJ_TAC >- PROVE_TAC [measure_space_def]
- >> fs [space_def, subsets_def]
+ >> MATCH_MP_TAC IN_MEASURABLE_BOREL_MUL_INDICATOR
+ >> fs [measure_space_def, integrable_def]
 QED
 
 (* IMPORTANT: all posinf-valued points (which forms a null set) in an integrable
@@ -5661,14 +5701,15 @@ Theorem integrable_not_infty_lemma[local] :
              (integral m f = integral m g)
 Proof
     RW_TAC std_ss [integral_pos_fn, integrable_def]
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> Q.ABBREV_TAC `g = (\x. if f x = PosInf then 0 else f x)`
  >> Q.EXISTS_TAC `g`
  >> `!x. x IN m_space m ==> 0 <= g x` by METIS_TAC [le_refl]
  >> `!x. x IN m_space m ==> g x <= f x` by METIS_TAC [le_refl,le_infty]
  >> `!x. x IN m_space m ==> g x <> PosInf` by METIS_TAC [num_not_infty]
  >> Know `g IN measurable (m_space m,measurable_sets m) Borel`
- >- (RW_TAC std_ss [IN_MEASURABLE_BOREL, space_def, subsets_def, IN_FUNSET, IN_UNIV]
-     >- METIS_TAC [measure_space_def] \\
+ >- (RW_TAC std_ss [IN_MEASURABLE_BOREL, space_def, subsets_def, IN_FUNSET, IN_UNIV] \\
      Cases_on `Normal c <= 0`
      >- (`{x | g x < Normal c} INTER m_space m = {}`
             by (RW_TAC std_ss [EXTENSION, GSPECIFICATION, NOT_IN_EMPTY, IN_INTER] \\
@@ -5684,7 +5725,8 @@ Proof
      RW_TAC std_ss [] \\ (* 2 subgoals *)
      METIS_TAC [(REWRITE_RULE [space_def, subsets_def] o
                  Q.SPECL [`f`,`(m_space m, measurable_sets m)`])
-                    IN_MEASURABLE_BOREL_ALL, integrable_def, INTER_COMM]) >> DISCH_TAC
+                    IN_MEASURABLE_BOREL_ALL, integrable_def, INTER_COMM])
+ >> DISCH_TAC
  >> CONJ_TAC
  >- (RW_TAC std_ss []
      >- (FULL_SIMP_TAC std_ss [lt_infty] \\
@@ -5815,6 +5857,8 @@ Theorem integrable_not_infty_alt :
          (integral m f = integral m (\x. if f x = PosInf then 0 else f x))
 Proof
     rpt GEN_TAC >> STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> Q.ABBREV_TAC `g = (\x. if f x = PosInf then 0 else f x)`
  >> `!x. x IN m_space m ==> 0 <= g x` by METIS_TAC [le_refl]
  >> `!x. x IN m_space m ==> g x <= f x` by METIS_TAC [le_refl, le_infty]
@@ -5822,8 +5866,7 @@ Proof
  >> `!x. x IN m_space m ==> g x <> NegInf` by METIS_TAC [lt_infty, lte_trans, num_not_infty]
  >> `!x. x IN m_space m ==> f x <> NegInf` by METIS_TAC [lt_infty, lte_trans, num_not_infty]
  >> Know `g IN measurable (m_space m,measurable_sets m) Borel`
- >- (RW_TAC std_ss [IN_MEASURABLE_BOREL, space_def, subsets_def, IN_FUNSET, IN_UNIV]
-     >- METIS_TAC [measure_space_def] \\
+ >- (RW_TAC std_ss [IN_MEASURABLE_BOREL, space_def, subsets_def, IN_FUNSET, IN_UNIV] \\
      Cases_on `Normal c <= 0`
      >- (`{x | g x < Normal c} INTER m_space m = {}`
             by (RW_TAC std_ss [EXTENSION, GSPECIFICATION, NOT_IN_EMPTY, IN_INTER] \\
@@ -5997,6 +6040,8 @@ Theorem integral_add_lemma :
       (integral m f = pos_fn_integral m f1 - pos_fn_integral m f2)
 Proof
     rpt STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> REWRITE_TAC [integral_def]
  >> `!x. x IN m_space m ==> f1 x <> NegInf` by METIS_TAC [pos_not_neginf]
  >> `!x. x IN m_space m ==> f2 x <> NegInf` by METIS_TAC [pos_not_neginf]
@@ -6116,6 +6161,8 @@ Theorem integral_add :
            (integral m (\x. f x + g x) = integral m f + integral m g)
 Proof
     RW_TAC std_ss []
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> Know `integral m (\x. f x + g x) =
           pos_fn_integral m (\x. fn_plus f x + fn_plus g x) -
           pos_fn_integral m (\x. fn_minus f x + fn_minus g x)`
@@ -6601,14 +6648,16 @@ QED
    added `integrable m f` into antecedents, otherwise `integral m f` is not defined;
    added `measure m (m_space m) < PosInf` into antecedents
  *)
-val finite_support_integral_reduce = store_thm
-  ("finite_support_integral_reduce",
-  ``!m f. measure_space m /\ f IN measurable (m_space m,measurable_sets m) Borel /\
+Theorem finite_support_integral_reduce :
+    !m f. measure_space m /\ f IN measurable (m_space m,measurable_sets m) Borel /\
          (!x. x IN m_space m ==> f x <> NegInf /\ f x <> PosInf) /\
           FINITE (IMAGE f (m_space m)) /\
           integrable m f /\ measure m (m_space m) < PosInf ==>
-         (integral m f = finite_space_integral m f)``,
+         (integral m f = finite_space_integral m f)
+Proof
     rpt STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> `?c1 n. BIJ c1 (count n) (IMAGE f (m_space m))`
        by RW_TAC std_ss [GSYM FINITE_BIJ_COUNT_EQ]
  >> `?c. !i. (i IN count n ==> (c1 i = Normal (c i)))`
@@ -6874,7 +6923,8 @@ val finite_support_integral_reduce = store_thm
  >- METIS_TAC [mul_not_infty]
  >> MATCH_MP_TAC pos_not_neginf
  >> IMP_RES_TAC MEASURE_SPACE_POSITIVE
- >> METIS_TAC [positive_def]);
+ >> METIS_TAC [positive_def]
+QED
 
 (* special case of "finite_support_integral_reduce": (m_space m) is finite.
 
@@ -6904,9 +6954,10 @@ Theorem finite_space_POW_integral_reduce :
          (integral m f = SIGMA (\x. f x * (measure m {x})) (m_space m))
 Proof
     RW_TAC std_ss []
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> `f IN measurable (m_space m, measurable_sets m) Borel`
         by (RW_TAC std_ss [IN_MEASURABLE_BOREL,IN_FUNSET,IN_UNIV,space_def,subsets_def]
-            >- FULL_SIMP_TAC std_ss [measure_space_def]
             >> METIS_TAC [INTER_SUBSET,IN_POW])
  >> `?c n. BIJ c (count n) (m_space m)` by RW_TAC std_ss [GSYM FINITE_BIJ_COUNT_EQ]
  >> `FINITE (count n)` by RW_TAC std_ss [FINITE_COUNT]
@@ -7219,6 +7270,8 @@ Theorem measure_space_density :
          (!x. x IN m_space m ==> 0 <= f x) ==> measure_space (density m f)
 Proof
     Q.X_GEN_TAC ‘M’ >> rpt STRIP_TAC
+ >> ‘sigma_algebra (measurable_space M)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> SIMP_TAC std_ss [measure_space_def, density_measure_def, density_def,
                      m_space_def, measurable_sets_def]
  >> Q.PAT_ASSUM `measure_space M`
@@ -7278,7 +7331,8 @@ Theorem measure_space_density' :
 Proof
     rpt STRIP_TAC
  >> MATCH_MP_TAC measure_space_density >> art [FN_PLUS_POS]
- >> MATCH_MP_TAC IN_MEASURABLE_BOREL_FN_PLUS >> art []
+ >> MATCH_MP_TAC IN_MEASURABLE_BOREL_FN_PLUS
+ >> rw [MEASURE_SPACE_SIGMA_ALGEBRA]
 QED
 
 val suminf_measure = prove (
@@ -7668,6 +7722,8 @@ Theorem integral_abs_eq_0 :
         ((AE x::m. (abs o f) x = 0) <=> (measure m {x | x IN m_space m /\ f x <> 0} = 0))
 Proof
     rpt GEN_TAC >> STRIP_TAC
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> Know `{x | x IN m_space m /\ f x <> 0} IN measurable_sets m`
  >- (`{x | x IN m_space m /\ f x <> 0} = {x | f x <> 0} INTER m_space m` by SET_TAC [] \\
      POP_ORW >> METIS_TAC [IN_MEASURABLE_BOREL_ALL_MEASURE]) >> DISCH_TAC
@@ -7687,7 +7743,6 @@ Proof
          ((GEN_REWRITE_TAC (RAND_CONV o ONCE_DEPTH_CONV) empty_rewrites) o wrap o SYM) \\
        IMP_RES_TAC MEASURE_SPACE_INCREASING \\
        MATCH_MP_TAC INCREASING >> fs [abs_eq_0] ]) >> DISCH_TAC
- >> `sigma_algebra (m_space m,measurable_sets m)` by PROVE_TAC [measure_space_def]
  (* RHS ==> LHS, by AE and integral_null_set *)
  >> reverse EQ_TAC
  >- (SIMP_TAC bool_ss [AE_ALT, GSYM IN_NULL_SET] >> STRIP_TAC \\
@@ -8355,12 +8410,15 @@ val RADON_F_def = Define
 val RADON_F_integrals_def = Define
    `RADON_F_integrals m v = {r | ?f. (r = pos_fn_integral m f) /\ f IN RADON_F m v}`;
 
-val lemma_radon_max_in_F = Q.prove (
-   `!f g m v. measure_space m /\ measure_space v /\
+Theorem lemma_radon_max_in_F[local] :
+    !f g m v. measure_space m /\ measure_space v /\
               (m_space v = m_space m) /\ (measurable_sets v = measurable_sets m) /\
               f IN RADON_F m v /\ g IN RADON_F m v
-          ==> (\x. max (f x) (g x)) IN RADON_F m v`,
+          ==> (\x. max (f x) (g x)) IN RADON_F m v
+Proof
     RW_TAC real_ss [RADON_F_def, GSPECIFICATION, max_le, le_max]
+ >> ‘sigma_algebra (measurable_space m)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >- FULL_SIMP_TAC std_ss [IN_MEASURABLE_BOREL_MAX, measure_space_def]
  >> Q.ABBREV_TAC `A1 = {x | x IN A /\ g x < f x}`
  >> Q.ABBREV_TAC `A2 = {x | x IN A /\ f x <= g x}`
@@ -9253,14 +9311,15 @@ val measure_density_indicator = save_thm
   ("measure_density_indicator",
     REWRITE_RULE [GSYM density_def, GSYM density_measure_def] measure_restricted);
 
-val measure_subadditive_finite = store_thm
-  ("measure_subadditive_finite",
- ``!I A M. measure_space M /\ FINITE I /\
-           IMAGE A I SUBSET measurable_sets M ==>
-           measure M (BIGUNION {A i | (i:num) IN I}) <=
-           SIGMA (\i. measure M (A i)) I``,
+(* NOTE: changed the universal quantifier ‘I’ to ‘J’ *)
+Theorem measure_subadditive_finite :
+   !J A M. measure_space M /\ FINITE J /\
+           IMAGE A J SUBSET measurable_sets M ==>
+           measure M (BIGUNION {A i | (i:num) IN J}) <=
+           SIGMA (\i. measure M (A i)) J
+Proof
   RW_TAC std_ss [] THEN NTAC 2 (POP_ASSUM MP_TAC) THEN
-  Q.SPEC_TAC (`I`,`I`) THEN SET_INDUCT_TAC THEN1
+  qid_spec_tac ‘J’ THEN SET_INDUCT_TAC THEN1
   (SIMP_TAC std_ss [EXTREAL_SUM_IMAGE_EMPTY, NOT_IN_EMPTY] THEN
    REWRITE_TAC [SET_RULE ``{A i | i | F} = {}``] THEN
    FULL_SIMP_TAC std_ss [BIGUNION_EMPTY, measure_space_def, positive_def] THEN
@@ -9392,7 +9451,8 @@ val measure_subadditive_finite = store_thm
     ASM_SET_TAC []] THEN
    ASM_CASES_TAC ``measure M (A (e:num)) = PosInf`` THENL
    [FULL_SIMP_TAC std_ss [extreal_add_def], ALL_TAC] THEN
-   METIS_TAC [normal_real, extreal_add_def]);
+   METIS_TAC [normal_real, extreal_add_def]
+QED
 
 (* A0 and B (all djsjoint) are in measurable_sets M, together `m_space M`.
 
@@ -9986,11 +10046,14 @@ Proof
    FIRST_X_ASSUM (ASSUME_TAC o ONCE_REWRITE_RULE [SPECIFICATION]) THEN
    POP_ASSUM (fn th => ONCE_REWRITE_TAC [th]) THEN
    ONCE_REWRITE_TAC [METIS [] ``PosInf = (\x. PosInf) x``] THEN
-   MATCH_MP_TAC MEASURABLE_IF THEN REPEAT CONJ_TAC THENL
-   [SIMP_TAC std_ss [SPACE, m_space_def, measurable_sets_def] THEN
+   MATCH_MP_TAC MEASURABLE_IF >> rpt STRIP_TAC >| (* 5 subgoals *)
+   [(* goal 1 (of 5) *)
+    SIMP_TAC std_ss [SPACE, m_space_def, measurable_sets_def] THEN
     MATCH_MP_TAC IN_MEASURABLE_BOREL_CONST THEN Q.EXISTS_TAC `PosInf` THEN
     METIS_TAC [measure_space_def],
+    (* goal 2 (of 5) *)
     ALL_TAC,
+    (* goal 3 (of 5) *)
     ONCE_REWRITE_TAC [prove (``{x | x IN m_space M /\ Q0 x} = {x | x IN m_space M /\ x IN Q0}``,
      SIMP_TAC std_ss [SPECIFICATION])] THEN SIMP_TAC std_ss [GSYM INTER_DEF] THEN
     ONCE_REWRITE_TAC [METIS [subsets_def]
@@ -9998,7 +10061,10 @@ Proof
     MATCH_MP_TAC ALGEBRA_INTER THEN SIMP_TAC std_ss [subsets_def] THEN
     CONJ_TAC THENL [METIS_TAC [measure_space_def, sigma_algebra_def], ALL_TAC] THEN
     METIS_TAC [MEASURE_SPACE_MSPACE_MEASURABLE],
-    ASM_REWRITE_TAC []] THEN
+    (* goal 4 (of 5) *)
+    ASM_REWRITE_TAC [],
+    (* goal 5 (of 5) *)
+    rw [SIGMA_ALGEBRA_BOREL] ] THEN
    Know `!x. suminf (\i. f i x * indicator_fn (Q i) x) =
              sup (IMAGE (\n. SIGMA (\i. f i x * indicator_fn (Q i) x)
                              (count n)) univ(:num))`
@@ -10579,6 +10645,8 @@ Theorem Radon_Nikodym_sigma_finite : (* was: RADON_NIKODYM *)
              (pos_fn_integral M (\x. f x * indicator_fn A x) = measure N A)
 Proof
     rpt STRIP_TAC
+ >> ‘sigma_algebra (measurable_space M) /\ sigma_algebra (measurable_space N)’
+      by PROVE_TAC [MEASURE_SPACE_SIGMA_ALGEBRA]
  >> Q.PAT_X_ASSUM `m_space M = m_space N` (ASSUME_TAC o SYM)
  >> Q.PAT_X_ASSUM `measurable_sets M = measurable_sets N` (ASSUME_TAC o SYM)
  >> ASM_REWRITE_TAC []
@@ -10655,10 +10723,9 @@ Proof
      reverse CONJ_TAC
      >- (MATCH_MP_TAC pos_fn_integral_zero \\
          METIS_TAC [measure_space_def, positive_def]) \\
-     SIMP_TAC std_ss [IN_MEASURABLE_BOREL] THEN ASM_SIMP_TAC std_ss [] \\
+     ASM_SIMP_TAC std_ss [IN_MEASURABLE_BOREL] \\
      ASM_SIMP_TAC std_ss [space_def, INTER_EMPTY, subsets_def] \\
-     CONJ_TAC >- (EVAL_TAC >> SRW_TAC [] [IN_DEF, IN_FUNSET]) \\
-     METIS_TAC [IN_SING])
+     SRW_TAC [] [IN_DEF, IN_FUNSET])
  >> Suff `measure_absolutely_continuous (measure N) mt`
  >- (STRIP_TAC \\
      MP_TAC (Q.SPECL [`mt`, `N`] Radon_Nikodym_finite_arbitrary) \\
@@ -10823,6 +10890,222 @@ Proof
     rw [measure_space_eq_def, density_def]
  >> irule RN_deriv_thm >> art []
  >> Q.EXISTS_TAC ‘f’ >> rw []
+QED
+
+(***********************)
+(*   Further Results   *)
+(***********************)
+
+(*  I add these results at the end
+      in order to manipulate the simplifier without breaking anything
+      - Jared Yeager                                                    *)
+
+(*** integral and integrable Theorems with fewer preconditions ***)
+
+Theorem integrable_measurable:
+    !m f. integrable m f ==> f IN Borel_measurable (measurable_space m)
+Proof
+    simp[integrable_def]
+QED
+
+Theorem pos_fn_integrable_AE_finite:
+    !m f. measure_space m /\ (!x. x IN m_space m ==> 0 <= f x) /\
+        f IN Borel_measurable (measurable_space m) /\ pos_fn_integral m f <> PosInf ==>
+        AE x::m. f x = (Normal o real o f) x
+Proof
+    rw[] >> rw[AE_ALT] >> qexists_tac ‘{x | x IN m_space m /\ f x = PosInf}’ >>
+    simp[pos_fn_integral_infty_null] >> rw[SUBSET_DEF] >>
+    Cases_on ‘f x’ >> fs[normal_real] >> rw[] >>
+    last_x_assum (dxrule_then assume_tac) >> rfs[]
+QED
+
+Theorem integrable_AE_finite:
+    !m f. measure_space m /\ integrable m f ==> AE x::m. f x = (Normal o real o f) x
+Proof
+    rw[] >> fs[integrable_def] >>
+    map_every (fn tm => (qspecl_then [‘m’,tm] assume_tac) pos_fn_integrable_AE_finite) [‘f^+’,‘f^-’] >>
+    rfs[FN_PLUS_POS,FN_MINUS_POS,IN_MEASURABLE_BOREL_FN_PLUS,IN_MEASURABLE_BOREL_FN_MINUS] >>
+    fs[AE_ALT] >> qexists_tac ‘N UNION N'’ >> (drule_then assume_tac) NULL_SET_UNION >>
+    rfs[IN_APP] >> pop_assum kall_tac >> fs[SUBSET_DEF] >> rw[] >>
+    NTAC 2 (last_x_assum (drule_then assume_tac)) >> Cases_on ‘f x’ >> rw[] >>
+    DISJ2_TAC >> first_x_assum irule >> simp[fn_minus_def,extreal_ainv_def]
+QED
+
+Theorem integrable_eq_AE_alt:
+    !m f g. measure_space m /\ integrable m f /\ (AE x::m. f x = g x) /\
+        g IN Borel_measurable (measurable_space m) ==> integrable m g
+Proof
+    simp[integrable_def] >> NTAC 4 strip_tac >>
+    ‘pos_fn_integral m f^+ = pos_fn_integral m g^+ /\
+        pos_fn_integral m f^- = pos_fn_integral m g^-’ suffices_by (rw[] >> fs[]) >>
+    rw[] >> irule pos_fn_integral_cong_AE >> simp[FN_PLUS_POS,FN_MINUS_POS] >>
+    fs[AE_ALT,SUBSET_DEF] >> qexists_tac ‘N’ >> rw[] >>
+    last_x_assum (dxrule_then assume_tac) >> pop_assum irule >>
+    pop_assum mp_tac >> CONV_TAC CONTRAPOS_CONV >>
+    simp[fn_plus_def,fn_minus_def]
+QED
+
+Theorem integrable_cong_AE:
+    !m f g. complete_measure_space m /\ (AE x::m. f x = g x) ==>
+        (integrable m f <=> integrable m g)
+Proof
+    rw[] >> eq_tac >> rw[] >>
+    dxrule_at_then (Pos $ el 1) (dxrule_at_then (Pos $ el 1) irule) integrable_eq_AE >> simp[] >>
+    qspecl_then [‘m’,‘λx. g x = f x’,‘λx. f x = g x’] (irule_at Any o SIMP_RULE (srw_ss ()) []) AE_subset >>
+    simp[]
+QED
+
+Theorem integrable_cong_AE_alt:
+    !m f g. measure_space m /\ (AE x::m. f x = g x) /\
+        f IN Borel_measurable (measurable_space m) /\ g IN Borel_measurable (measurable_space m)==>
+        (integrable m f <=> integrable m g)
+Proof
+    rw[] >> eq_tac >> rw[] >>
+    dxrule_at_then (Pos $ el 1) (dxrule_at_then (Pos $ el 1) irule) integrable_eq_AE_alt >> simp[] >>
+    qspecl_then [‘m’,‘λx. g x = f x’,‘λx. f x = g x’] (irule_at Any o SIMP_RULE (srw_ss ()) []) AE_subset >>
+    simp[]
+QED
+
+Theorem integral_mono_AE:
+    !m f g. measure_space m /\ (AE x::m. f x <= g x) ==> integral m f <= integral m g
+Proof
+    rw[integral_def] >> irule sub_le_sub_imp >> NTAC 2 $ irule_at Any pos_fn_integral_mono_AE >>
+    simp[FN_PLUS_POS,FN_MINUS_POS] >>
+    map_every (fn tms => qspecl_then tms (irule_at Any o SIMP_RULE (srw_ss ()) []) AE_subset)
+        [[‘m’,‘λx. f x <= g x’,‘λx. f^+ x <= g^+ x’],[‘m’,‘λx. f x <= g x’,‘λx. g^- x <= f^- x’]] >>
+    simp[GSYM FORALL_AND_THM,GSYM IMP_CONJ_THM] >> NTAC 2 strip_tac >>
+    rw[fn_plus_def,fn_minus_def]
+    >| [simp[le_neg],simp[Once le_negl],simp[Once le_negr,le_lt],simp[],simp[le_lt]] >>
+    ‘F’ suffices_by simp[] >> qpat_x_assum ‘~b’ mp_tac >> simp[]
+    >- (irule let_trans >> qexists_tac ‘g x’ >> simp[])
+    >- (irule lte_trans >> qexists_tac ‘f x’ >> simp[])
+QED
+
+Theorem integral_add':
+    !m f g. measure_space m /\ integrable m f /\ integrable m g ==>
+        integral m (λx. f x + g x) = integral m f + integral m g
+Proof
+    rw[] >> imp_res_tac integrable_AE_finite >>
+    (qspecl_then [‘m’,‘f’,‘Normal o real o f’,‘g’,‘Normal o real o g’] assume_tac)
+        AE_eq_add >> rfs[] >>
+    map_every (fn tms => (qspecl_then tms assume_tac) integral_cong_AE)
+        [[‘m’,‘f’,‘Normal o real o f’],[‘m’,‘g’,‘Normal o real o g’],
+        [‘m’,‘λx. f x + g x’,‘λx. Normal (real (f x)) + Normal (real (g x))’]] >>
+    rfs[] >> NTAC 3 (pop_assum kall_tac) >>
+    qspecl_then [‘m’,‘Normal o real o f’,‘Normal o real o g’] assume_tac integral_add >>
+    rfs[] >> pop_assum irule >> rw[] >> irule integrable_eq_AE_alt >> fs[integrable_def] >>
+    simp[IN_MEASURABLE_BOREL_NORMAL_REAL]
+    >| [qexists_tac ‘f’,qexists_tac ‘g’] >> simp[]
+QED
+
+Theorem integrable_add':
+    !m f g. measure_space m /\ integrable m f /\ integrable m g ==> integrable m (λx. f x + g x)
+Proof
+    rw[] >> imp_res_tac integrable_AE_finite >>
+    (qspecl_then [‘m’,‘f’,‘Normal o real o f’,‘g’,‘Normal o real o g’] assume_tac) AE_eq_add >> rfs[] >>
+    map_every (fn tms => (qspecl_then tms assume_tac) integrable_eq_AE_alt)
+        [[‘m’,‘f’,‘Normal o real o f’],[‘m’,‘g’,‘Normal o real o g’],
+        [‘m’,‘λx. Normal (real (f x)) + Normal (real (g x))’,‘λx. f x + g x’]] >>
+    rfs[integrable_measurable,IN_MEASURABLE_BOREL_NORMAL_REAL] >> pop_assum irule >>
+    simp[Once EQ_SYM_EQ] >> irule_at Any IN_MEASURABLE_BOREL_ADD' >>
+    qexistsl_tac [‘g’,‘f’] >> simp[integrable_measurable] >>
+    qspecl_then [‘m’,‘Normal o real o f’,‘Normal o real o g’] (irule o SIMP_RULE (srw_ss ()) []) integrable_add >>
+    simp[]
+QED
+
+Theorem integral_sum':
+    !m f s. FINITE s /\ measure_space m /\ (!i. i IN s ==> integrable m (f i)) ==>
+        integral m (λx. SIGMA (λi. f i x) s) = SIGMA (λi. integral m (f i)) s
+Proof
+    rw[] >>
+    resolve_then Any (resolve_then (Pos $ el 2)
+        (qspecl_then [‘zzz’,‘xxx’,‘s’,‘m’,‘λi. Normal o real o f i’] irule) integral_sum) EQ_TRANS EQ_TRANS >>
+    qexistsl_tac [‘f’,‘m’,‘s’] >> simp[] >>
+    first_assum $ C (resolve_then Any assume_tac) integrable_AE_finite >> rfs[] >>
+    qspecl_then [‘m’,‘λi x. f i x = Normal (real (f i x))’,‘s’] assume_tac AE_BIGINTER >>
+    rfs[finite_countable] >> rw[]
+    >- (irule integrable_eq_AE_alt >> simp[integrable_measurable,IN_MEASURABLE_BOREL_NORMAL_REAL] >>
+        qexists_tac ‘f i’ >> simp[])
+    >- (irule integral_cong_AE >> simp[] >>
+        qspecl_then [‘m’,‘λx. !n. n IN s ==> f n x = Normal (real (f n x))’,
+            ‘λx. SIGMA (λi. f i x) s = SIGMA (λi. Normal (real (f i x))) s’]
+            (irule o SIMP_RULE (srw_ss ()) []) AE_subset >>
+        rw[] >> irule EXTREAL_SUM_IMAGE_EQ' >> simp[])
+    >- (irule EXTREAL_SUM_IMAGE_EQ' >> simp[] >>
+        rw[] >> irule integral_cong_AE >> simp[Once EQ_SYM_EQ])
+QED
+
+Theorem integrable_sum':
+    !m f s. FINITE s /\ measure_space m /\ (!i. i IN s ==> integrable m (f i)) ==>
+        integrable m (λx. SIGMA (λi. f i x) s)
+Proof
+    rw[] >> irule integrable_eq_AE_alt >> simp[] >> drule_then (irule_at Any) IN_MEASURABLE_BOREL_SUM' >>
+    qexistsl_tac [‘f’,‘λx. SIGMA (λi. Normal (real (f i x))) s’] >> simp[integrable_measurable] >>
+    qspecl_then [‘m’,‘λi. Normal o real o f i’,‘s’] (irule_at Any o SIMP_RULE (srw_ss ()) []) integrable_sum >>
+    simp[] >> first_assum $ C (resolve_then Any assume_tac) integrable_AE_finite >> rfs[] >>
+    qspecl_then [‘m’,‘λi x. f i x = Normal (real (f i x))’,‘s’] assume_tac AE_BIGINTER >>
+    rfs[finite_countable] >> rw[]
+    >- (irule integrable_eq_AE_alt >> simp[integrable_measurable,IN_MEASURABLE_BOREL_NORMAL_REAL] >>
+        qexists_tac ‘f i’ >> simp[])
+    >- (qspecl_then [‘m’,‘λx. !n. n IN s ==> f n x = Normal (real (f n x))’,
+            ‘λx. SIGMA (λi. Normal (real (f i x))) s = SIGMA (λi. f i x) s’]
+            (irule o SIMP_RULE (srw_ss ()) []) AE_subset >>
+        rw[] >> irule EXTREAL_SUM_IMAGE_EQ' >> simp[])
+QED
+
+Theorem integral_sub':
+    !m f g. measure_space m /\ integrable m f /\ integrable m g ==>
+        integral m (λx. f x - g x) = integral m f - integral m g
+Proof
+    rw[] >>
+    map_every (fn th => (qspecl_then [‘m’,‘g’,‘-1’] assume_tac) th)
+        [integral_cmul,integrable_cmul] >>
+    rfs[normal_minus1,GSYM neg_minus1] >>
+    (qspecl_then [‘m’,‘f’,‘λx. -g x’] assume_tac) integral_add' >> rfs[] >>
+    ‘integral m f - integral m g = integral m f + -integral m g /\
+        integral m (λx. f x - g x) = integral m (λx. f x + -g x)’ suffices_by rw[] >>
+    NTAC 3 (pop_assum kall_tac) >> rw[]
+    >- (irule extreal_sub_add >> simp[integrable_finite_integral]) >>
+    irule integral_cong_AE >> simp[] >> imp_res_tac integrable_AE_finite >>
+    qspecl_then [‘m’,‘λx. P x /\ Q x’,‘R’] (resolve_then Any (qspecl_then
+        [‘m’,‘λx. f x - g x = f x + -g x’,‘λx. g x = (Normal o real o g) x’,‘λx. f x = (Normal o real o f) x’] $
+        irule o SIMP_RULE (srw_ss ()) []) AE_INTER o SIMP_RULE (srw_ss ()) []) AE_subset >>
+    fs[] >> rw[] >> NTAC 2 $ pop_assum SUBST1_TAC >>
+    simp[extreal_add_def,extreal_sub_def,extreal_ainv_def,real_sub]
+QED
+
+Theorem integrable_sub':
+    !m f g. measure_space m /\ integrable m f /\ integrable m g ==>
+        integrable m (λx. f x - g x)
+Proof
+    rw[] >> qspecl_then [‘m’,‘g’,‘-1’] assume_tac integrable_cmul >>
+    rfs[normal_minus1,GSYM neg_minus1] >>
+    (qspecl_then [‘m’,‘f’,‘λx. -g x’] assume_tac) integrable_add' >> rfs[] >>
+    irule integrable_eq_AE_alt >> simp[PULL_EXISTS] >> qexists_tac ‘λx. f x + -g x’ >> rw[]
+    >- (irule IN_MEASURABLE_BOREL_SUB' >> simp[] >> qexistsl_tac [‘f’,‘g’] >> simp[integrable_measurable]) >>
+    imp_res_tac integrable_AE_finite >>
+    qspecl_then [‘m’,‘λx. P x /\ Q x’,‘R’] (resolve_then Any (qspecl_then
+        [‘m’,‘λx. f x + -g x = f x - g x’,‘λx. g x = (Normal o real o g) x’,‘λx. f x = (Normal o real o f) x’] $
+        irule o SIMP_RULE (srw_ss ()) []) AE_INTER o SIMP_RULE (srw_ss ()) []) AE_subset >>
+    fs[] >> rw[] >> NTAC 2 $ pop_assum SUBST1_TAC >>
+    simp[extreal_add_def,extreal_sub_def,extreal_ainv_def,real_sub]
+QED
+
+(* An easy corollary of the new integral_add' and integrable_add' *)
+Theorem integral_add3 :
+    !m f g h. measure_space m /\
+              integrable m f /\ integrable m g /\ integrable m h
+          ==> integral m (\x. f x + g x + h x) =
+              integral m f + integral m g + integral m h
+Proof
+    rpt STRIP_TAC
+ >> Know ‘integral m (\x. f x + g x + h x) =
+          integral m (\x. f x + g x) + integral m h’
+ >- (HO_MATCH_MP_TAC integral_add' >> simp [] \\
+     MATCH_MP_TAC integrable_add' >> rw [])
+ >> Rewr'
+ >> Suff ‘integral m (\x. f x + g x) = integral m f + integral m g’ >- rw []
+ >> MATCH_MP_TAC integral_add' >> rw []
 QED
 
 val _ = export_theory ();
