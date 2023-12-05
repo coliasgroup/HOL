@@ -49,6 +49,8 @@ fun fs l = FULL_SIMP_TAC (srw_ss()) l
 
 val _ = new_theory "list";
 
+val _ = temp_delsimps ["lift_disj_eq", "lift_imp_disj"]
+
 val _ = Rewrite.add_implicit_rewrites pairTheory.pair_rws;
 val zDefine = Lib.with_flag (computeLib.auto_import_definitions, false) Define
 val dDefine = Lib.with_flag (Defn.def_suffix, "_DEF") Define
@@ -2019,11 +2021,15 @@ val ALL_DISTINCT_SING = store_thm(
    ``!x. ALL_DISTINCT [x]``,
    SRW_TAC [] []);
 
-Theorem ALL_DISTINCT_ZIP
-   `!l1 l2. ALL_DISTINCT l1 /\ (LENGTH l1 = LENGTH l2) ==>
-            ALL_DISTINCT (ZIP (l1,l2))`
-  (Induct THEN Cases_on `l2` THEN SRW_TAC [] [ZIP] THEN
-   FULL_SIMP_TAC (srw_ss()) [MEM_EL, MEM_ZIP]);
+val ALL_DISTINCT_ZIP = store_thm(
+   "ALL_DISTINCT_ZIP",
+   ``!l1 l2. ALL_DISTINCT l1 /\ (LENGTH l1 = LENGTH l2) ==> ALL_DISTINCT (ZIP (l1,l2))``,
+   Induct THEN Cases_on `l2` THEN SRW_TAC [] [ZIP] THEN RES_TAC THEN
+   FULL_SIMP_TAC (srw_ss()) [MEM_EL] THEN
+   SRW_TAC [] [LENGTH_ZIP] THEN
+   Q.MATCH_ABBREV_TAC `~X \/ Y` THEN
+   Cases_on `X` THEN SRW_TAC [] [Abbr`Y`] THEN
+   SRW_TAC [] [EL_ZIP] THEN METIS_TAC []);
 
 val ALL_DISTINCT_ZIP_SWAP = store_thm(
    "ALL_DISTINCT_ZIP_SWAP",
@@ -2657,26 +2663,28 @@ val ALL_DISTINCT_SNOC = store_thm (
              ~(MEM x l) /\ (ALL_DISTINCT l)``,
 SRW_TAC [] [SNOC_APPEND, ALL_DISTINCT_APPEND] THEN PROVE_TAC[]);
 
-Theorem ALL_DISTINCT_GENLIST
-  `ALL_DISTINCT (GENLIST f n) <=>
-   (!m1 m2. m1 < n /\ m2 < n /\ (f m1 = f m2) ==> (m1 = m2))`
-(Induct_on `n` THEN
- SRW_TAC [] [GENLIST, ALL_DISTINCT_SNOC, MEM_EL] THEN
- SRW_TAC [] [EQ_IMP_THM] THEN1 (
-   IMP_RES_TAC prim_recTheory.LESS_SUC_IMP THEN
-   Cases_on `m1 = n` THEN Cases_on `m2 = n` THEN SRW_TAC [] [] THEN
-   FULL_SIMP_TAC (srw_ss()) [] THEN1 (
-     NTAC 2 (FIRST_X_ASSUM (Q.SPEC_THEN `m2` MP_TAC)) THEN
-     SRW_TAC [] [] ) THEN
-   NTAC 2 (FIRST_X_ASSUM (Q.SPEC_THEN `m1` MP_TAC)) THEN
-   SRW_TAC [] [] )
- THEN1 (
-   Q.RENAME_TAC [‘~(m < n)’, ‘f n = EL m (GENLIST f n)’] THEN
-   STRIP_TAC THEN
-   FIRST_X_ASSUM (Q.SPECL_THEN [`m`,`n`] MP_TAC) THEN
-   SRW_TAC [] [prim_recTheory.LESS_SUC] THEN
-   METIS_TAC [prim_recTheory.LESS_REFL] ) THEN
- METIS_TAC [prim_recTheory.LESS_SUC] );
+local open prim_recTheory in
+val ALL_DISTINCT_GENLIST = Q.store_thm(
+"ALL_DISTINCT_GENLIST",
+`ALL_DISTINCT (GENLIST f n) <=>
+ (!m1 m2. m1 < n /\ m2 < n /\ (f m1 = f m2) ==> (m1 = m2))`,
+Induct_on `n` THEN
+SRW_TAC [] [GENLIST, ALL_DISTINCT_SNOC, MEM_EL] THEN
+SRW_TAC [] [EQ_IMP_THM] THEN1 (
+  IMP_RES_TAC LESS_SUC_IMP THEN
+  Cases_on `m1 = n` THEN Cases_on `m2 = n` THEN SRW_TAC [] [] THEN
+  FULL_SIMP_TAC (srw_ss()) [] THEN1 (
+    NTAC 2 (FIRST_X_ASSUM (Q.SPEC_THEN `m2` MP_TAC)) THEN
+    SRW_TAC [] [] ) THEN
+  NTAC 2 (FIRST_X_ASSUM (Q.SPEC_THEN `m1` MP_TAC)) THEN
+  SRW_TAC [] [] ) THEN1 (
+  Q.MATCH_RENAME_TAC `~(m < n) \/ f n <> EL m (GENLIST f n)` THEN
+  Cases_on `m < n` THEN SRW_TAC [] [] THEN
+  FIRST_X_ASSUM (Q.SPECL_THEN [`m`,`n`] MP_TAC) THEN
+  SRW_TAC [] [LESS_SUC] THEN
+  METIS_TAC [LESS_REFL] ) THEN
+METIS_TAC [LESS_SUC] )
+end
 
 Theorem TAKE_GENLIST:
   TAKE n (GENLIST f m) = GENLIST f (MIN n m)
@@ -3371,7 +3379,7 @@ val WF_SHORTLEX = Q.store_thm(
   >- fs[Abbr‘as’] >>
   Q.X_GEN_TAC ‘bb’ >> rpt strip_tac >>
   ‘bb NOTIN as’ by simp[] >>
-  ‘LENGTH bb <> LENGTH a’ by (fs[Abbr‘as’] >> metis_tac[]) >>
+  ‘LENGTH bb <> LENGTH a’ by (fs[Abbr‘as’] >> fs[]) >>
   ‘LENGTH a < LENGTH bb’ by metis_tac[arithmeticTheory.LESS_OR_EQ] >>
   ‘LENGTH bb <= LENGTH a0’ by metis_tac[SHORTLEX_LENGTH_LE] >>
   ‘LENGTH a0 = LENGTH a’ by metis_tac[] >>
@@ -3802,11 +3810,12 @@ val DISJOINT_GENLIST_PLUS = Q.store_thm("DISJOINT_GENLIST_PLUS",
 val EVERY2_MAP = Q.store_thm("EVERY2_MAP",
    `(EVERY2 P (MAP f l1) l2 = EVERY2 (\x y. P (f x) y) l1 l2) /\
     (EVERY2 Q l1 (MAP g l2) = EVERY2 (\x y. Q x (g y)) l1 l2)`,
-   rw [EVERY2_EVERY, LENGTH_MAP]
+   rw [EVERY2_EVERY]
    >> Cases_on `LENGTH l1 = LENGTH l2`
    >> fs []
    >> rw [ZIP_MAP, EVERY_MEM, MEM_MAP]
-   >> SRW_TAC [DNF_ss] [pairTheory.FORALL_PROD, LENGTH_MAP, MEM_ZIP]);
+   >> SRW_TAC [DNF_ss] [pairTheory.FORALL_PROD, LENGTH_MAP]
+   >> PROVE_TAC []);
 
 val exists_list_GENLIST = Q.store_thm("exists_list_GENLIST",
    `(?ls. P ls) = (?n f. P (GENLIST f n))`,
