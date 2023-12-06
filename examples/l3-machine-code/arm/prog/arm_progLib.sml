@@ -865,8 +865,95 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
+(* val () = set_trace "Goalstack.print_goal_at_top" 1
+val () = set_trace "Goalstack.other_subgoals_pretty_limit" 5
+val () = set_trace "Goalstack.howmany_printed_subgoals" 100
+(* val () = set_trace "Rewrite" 1 *)
+val () = set_trace "stateLib.spec" 1
+val () = set_trace "simplifier" 7
+val () = set_trace "report_thy_times" 1
+
+(* val () = print (String.concatWith "\n" (map (fn x => #name x ^ " = default: " ^ Int.toString (#default x) ^ ", max: " ^ Int.toString (#max x)) (traces ()))) *)
+val () = print (String.concatWith "\n" (map (fn x => "val () = set_trace \"" ^ #name x ^ "\" " ^ Int.toString (#max x)) (traces ())))
+
+val () = raise ERR "abc" "fdsa" *)
+
+val () = set_trace "Define.storage_message" 1
+val () = set_trace "Goalstack.howmany_printed_assums" 1000000
+val () = set_trace "Goalstack.howmany_printed_subgoals" 10000
+val () = set_trace "Goalstack.other_subgoals_pretty_limit" 100000
+val () = set_trace "Goalstack.print_assums_reversed" 1
+val () = set_trace "Goalstack.print_goal_at_top" 1
+val () = set_trace "Goalstack.print_goal_fvs" 1
+val () = set_trace "Goalstack.show_proved_subtheorems" 1
+val () = set_trace "Goalstack.show_stack_subgoal_count" 1
+val () = set_trace "Greek tyvars" 1
+val () = set_trace "Ho_Rewrite" 1
+val () = set_trace "HolSatLib_warn" 1
+val () = set_trace "PAT_ABBREV_TAC: match var/const" 1
+(* val () = set_trace "PP.avoid_unicode" 1
+val () = set_trace "PP.catch_withpp_err" 1
+val () = set_trace "PP.print_firstcasebar" 1
+val () = set_trace "PPBackEnd show types" 1
+val () = set_trace "PPBackEnd use annotations" 1
+val () = set_trace "PPBackEnd use css" 1
+val () = set_trace "PPBackEnd use styles" 1
+val () = set_trace "Parse.unicode_trace_off_complaints" 1 *)
+val () = set_trace "QUANT_INST_DEBUG" 3
+val () = set_trace "QUANT_INST_DEBUG_DEPTH" 2000
+val () = set_trace "QUANT_INST___REC_DEPTH" 20000
+val () = set_trace "QUANT_INST___print_term_length" 2000
+val () = set_trace "Rewrite" 1
+val () = set_trace "TFL rewrite monitoring" 20
+val () = set_trace "Theory.debug" 1
+val () = set_trace "Theory.save_thm_reporting" 2
+val () = set_trace "TheoryPP.include_docs" 1
+val () = set_trace "Unicode" 1
+val () = set_trace "Unicode Univ printing" 1
+val () = set_trace "Univ pretty-printing" 1
+val () = set_trace "Vartype Format Complaint" 1
+val () = set_trace "ambiguous grammar warning" 2
+val () = set_trace "assumptions" 1
+val () = set_trace "auto Defn.tgoal" 1
+val () = set_trace "bit blast" 3
+val () = set_trace "blast multiply limit" 32
+val () = set_trace "guess word lengths" 1
+val () = set_trace "inddef strict" 1
+val () = set_trace "meson" 2
+val () = set_trace "metis" 10
+val () = set_trace "native IEEE" 1
+val () = set_trace "normalForms" 10
+val () = set_trace "notify FCP length guesses" 1
+val () = set_trace "notify type variable guesses" 1
+val () = set_trace "notify word length guesses" 1
+val () = set_trace "numeral types" 1
+(* val () = set_trace "paranoid string literal printing" 1 *)
+(* val () = set_trace "pp_annotations" 1
+val () = set_trace "pp_array_types" 1
+val () = set_trace "pp_avoids_symbol_merges" 1
+val () = set_trace "pp_bigrecs" 1
+val () = set_trace "pp_cases" 1
+val () = set_trace "pp_cases_dt" 1
+val () = set_trace "pp_dollar_escapes" 1
+val () = set_trace "pp_num_types" 1
+val () = set_trace "pp_unambiguous_comprehensions" 2 *)
+val () = set_trace "print blast counterexamples" 1
+(* val () = set_trace "print_tyabbrevs" 1 *)
+val () = set_trace "report_thy_times" 1
+(* val () = set_trace "show_alias_printing_choices" 1 *)
+val () = set_trace "show_typecheck_errors" 1
+val () = set_trace "simplifier" 7
+val () = set_trace "stateLib.spec" 1
+val () = set_trace "syntax_error" 1
+val () = set_trace "tfl_ind" 1
+(* val () = set_trace "types" 2 *)
+val () = set_trace "use pmatch_pp" 1
+val () = set_trace "word decide" 1
+(* val () = set_trace "word pp as 2's comp" 1
+val () = set_trace "word printing" 6 *)
+
 val () = print "AAA"
-(* val th = arm_spec_hex "e12fff1e" *)
+val th = Count.apply arm_spec_hex "e12fff1e"
 val () = print "BBB"
 
 (* arm_progLib.arm_spec_hex "e12fff1e" *)
