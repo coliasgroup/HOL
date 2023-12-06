@@ -865,6 +865,10 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
+val () = print "AAA"
+val th = arm_spec_hex "e12fff1e"
+val () = print "BBB"
+
 (* ------------------------------------------------------------------------ *)
 
 (* Testing...
