@@ -1,0 +1,9 @@
+
+example.o:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+000000a8 <main>:
+  a8:	e3a00000 	mov	r0, #0
+  ac:	e12fff1e 	bx	lr

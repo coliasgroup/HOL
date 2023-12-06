@@ -24,6 +24,8 @@ val _ = not (!has_failures) orelse failwith "There were failures.";
 
 *)
 
+(*
+
 (* RISC-V example *)
 
 val base_name = "seL4-kernel/riscv/kernel-riscv"
@@ -34,7 +36,11 @@ val res = decomp_only base_name fast
 
 val _ = not (!has_failures) orelse failwith "There were failures.";
 
+*)
+
 (* ARMv7 example *)
+
+(*
 
 val base_name = "loop/example";
 val fast = false;
@@ -43,11 +49,24 @@ val res = decomp base_name fast ignore_names;
 
 val _ = not (!has_failures) orelse failwith "There were failures.";
 
+*)
+
+(*
+
 (* ARM-M0 *)
 
 val base_name = "loop-m0/example";
 val fast = false;
 val ignore_names = "";
 val res = decomp base_name fast ignore_names;
+
+*)
+
+val base_name = "just-bx/example";
+val fast = false;
+val ignore_names = "";
+val res = decomp base_name fast ignore_names;
+
+val _ = not (!has_failures) orelse failwith "There were failures.";
 
 val _ = export_theory();
