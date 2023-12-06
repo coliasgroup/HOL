@@ -8,14 +8,14 @@ open Abbrev HolKernel progSyntax temporal_stateTheory
 val (temporal_next_tm, mk_temporal_next, dest_temporal_next, is_temporal_next) =
    HolKernel.syntax_fns4 "temporal_state" "TEMPORAL_NEXT"
 
-fun dest_pre tm = let val (_, p, _, _) = dest_temporal_next tm in p end
-fun dest_code tm = let val (_, _, c, _) = dest_temporal_next tm in c end
-fun dest_post tm = let val (_, _, _, q) = dest_temporal_next tm in q end
+fun dest_pre tm = let val (_, p, _, _) = (dest_temporal_next tm handle e => (print "foobar-b0"; raise e)) in p end
+fun dest_code tm = let val (_, _, c, _) = (dest_temporal_next tm handle e => (print "foobar-b1"; raise e)) in c end
+fun dest_post tm = let val (_, _, _, q) = (dest_temporal_next tm handle e => (print "foobar-b2"; raise e)) in q end
 fun dest_pre_post tm =
-   let val (_, p, _, q) = dest_temporal_next tm in (p, q) end
+   let val (_, p, _, q) = (dest_temporal_next tm handle e => (print "foobar-b3"; raise e)) in (p, q) end
 
 fun dest_spec' tm =
-   progSyntax.dest_spec tm handle HOL_ERR _ => dest_temporal_next tm
+   progSyntax.dest_spec tm handle HOL_ERR _ => (dest_temporal_next tm handle e => (print "foobar-b4"; raise e))
 fun dest_pre' tm = progSyntax.dest_pre tm handle HOL_ERR _ => dest_pre tm
 fun dest_code' tm = progSyntax.dest_code tm handle HOL_ERR _ => dest_code tm
 fun dest_post' tm = progSyntax.dest_post tm handle HOL_ERR _ => dest_post tm

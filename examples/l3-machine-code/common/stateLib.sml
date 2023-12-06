@@ -28,7 +28,7 @@ fun SPECC_FRAME_RULE frame th =
 
 fun SPECL_FRAME_RULE l th =
    let
-      val p = temporal_stateSyntax.dest_pre' (Thm.concl th)
+      val p = temporal_stateSyntax.dest_pre' (Thm.concl th) handle e => (print "foobar-d1"; raise e)
       val xs = progSyntax.strip_star p
       val lx =
          List.filter
@@ -923,7 +923,7 @@ fun rename_vars (rmap, bump) =
    in
       fn thm =>
          let
-            val p = temporal_stateSyntax.dest_pre' (Thm.concl thm)
+            val p = temporal_stateSyntax.dest_pre' (Thm.concl thm) handle e => (print "foobar-d2"; raise e)
             val () = varReset ()
             val () = List.app (fn s => General.ignore (gvar s Type.alpha)) bump
             val avoid = utilsLib.avoid_name_clashes p o Lib.uncurry gvar
@@ -993,7 +993,7 @@ in
       in
          fn thm =>
             let
-               val p = temporal_stateSyntax.dest_pre' (Thm.concl thm)
+               val p = temporal_stateSyntax.dest_pre' (Thm.concl thm) handle e => (print "foobar-d3"; raise e)
                val move_cs =
                   List.map
                      (fn t => List.map (fn c => d_rule o move_match (c, t)) cs)
@@ -1421,7 +1421,7 @@ fun chunks_intro_pre_process m_def =
    in
       fn thm =>
          let
-            val p = temporal_stateSyntax.dest_pre' (Thm.concl thm)
+            val p = temporal_stateSyntax.dest_pre' (Thm.concl thm) handle e => (print "foobar-d4"; raise e)
             val l = List.filter (Lib.can dst) (progSyntax.strip_star p)
          in
             if List.null l
@@ -1468,7 +1468,7 @@ fun chunks_intro be m_def =
    in
       fn thm =>
          let
-            val p = temporal_stateSyntax.dest_pre' (Thm.concl thm)
+            val p = temporal_stateSyntax.dest_pre' (Thm.concl thm) handle e => (print "foobar-d5"; raise e)
             val (s, wa) = chunks (progSyntax.strip_star p)
          in
             if List.null wa
@@ -1539,7 +1539,7 @@ in
       in
          fn thm =>
             let
-               val p = temporal_stateSyntax.dest_pre' (Thm.concl thm)
+               val p = temporal_stateSyntax.dest_pre' (Thm.concl thm) handle e => (print "foobar-d6"; raise e)
                val (s, wa) = chunks (progSyntax.strip_star p)
             in
                if List.null wa
@@ -1881,17 +1881,20 @@ val (thm,t) = hd thm_ts
                val _ = print "CCC"
                val ret = prove (t, tac (v, dthm))
                val _ = print "DDD"
+               (* val _ = if not (temporal_stateSyntax.is_temporal_next (Thm.concl ret) orelse progSyntax.is_spec (Thm.concl ret)) then print "!!! not tnext !!!\n" else () *)
+               val () = (temporal_stateSyntax.dest_pre' (Thm.concl ret); ()) handle e => print "****wat*****\n"
             in
                (*
                   set_goal ([], t)
                *)
                (* prove (t, tac (v, dthm)) *)
+               (* (if !(temporal_stateSyntax.is_temporal_next (Thm.concl ret) orelse progSyntax.is_spec (Thm.concl ret)) then print "!!! not tnext !!!\n" else ()); *)
                ret
             end
-            handle e as HOL_ERR _ =>
+            (* handle e as HOL_ERR _ =>
                    (if !spec_debug
                        then (proofManagerLib.set_goal ([], t); thm)
-                    else raise e)
+                    else raise e) *)
       end
 end
 

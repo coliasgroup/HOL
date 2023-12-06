@@ -419,7 +419,7 @@ local
           | "arm_prog$arm_MEM" => K "b"
           | _ => fail())
 in
-   val arm_rename = stateLib.rename_vars (arm_rmap, ["b"])
+   val arm_rename = stateLib.rename_vars (arm_rmap, ["b"]) handle e => (print "<exn f1>\n"; raise e)
 end
 
 local
@@ -515,7 +515,7 @@ in
       stateLib.introduce_triple_definition (false, arm_PC_def) o
       stateLib.introduce_triple_definition (true, arm_CONFIG_def) o
       extend_arm_code_pool o
-      arm_rename
+      (fn thm => (arm_rename thm handle e => (print "<exn g1>\n"; raise e)))
 end
 
 local
@@ -556,7 +556,7 @@ local
           ``SingleOfDouble F w``]
    fun check_unique_reg_CONV tm =
       let
-         val p = progSyntax.strip_star (temporal_stateSyntax.dest_pre' tm)
+         val p = progSyntax.strip_star (temporal_stateSyntax.dest_pre' tm handle e => (print "foobar-c1"; raise e))
          val rp = List.mapPartial (Lib.total (fst o dest_arm_REG)) p
          val dp = List.mapPartial (Lib.total (fst o dest_arm_FP_REG)) p
       in
@@ -585,7 +585,8 @@ local
                THENC stateLib.PC_CONV "arm_prog$arm_PC")
 in
    fun simp_triple_rule thm =
-      arm_rename (Conv.CONV_RULE cnv thm)
+      (arm_rename (Conv.CONV_RULE cnv thm)
+      handle e => (print "<exn f1>\n"; raise e))
       handle FalseTerm => raise ERR "simp_triple_rule" "condition false"
 end
 
@@ -760,7 +761,7 @@ local
    val (reset_db, set_current_opt, get_current_opt, add1_pending, find_spec,
         list_db) =
       spec_databaseLib.mk_spec_database basic_opt default_opt proj_opt
-         closeness convert_opt_rule get_opcode (arm_intro o basic_spec)
+         closeness convert_opt_rule get_opcode (arm_intro o (fn thm => (((temporal_stateSyntax.dest_pre' (Thm.concl thm); ()) handle e => print "*****yyy*****\n"); thm)) o basic_spec)
    val current_config = ref (arm_configLib.mk_config_terms initial_config)
    val newline = ref "\n"
    val the_step = ref (arm_stepLib.arm_step initial_config)
