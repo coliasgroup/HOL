@@ -1,7 +1,8 @@
 open arm_progLib;
-open arm_saved_specsTheory;
 
-val () = arm_progLib.loadSpecs arm_saved_specsTheory.saved_specs;
+(* val () = print "Testing...\n"
+val th = arm_spec_hex "e12fff1e"
+val () = print "PASS\n" *)
 
 use "arm_tests.sml";
 
