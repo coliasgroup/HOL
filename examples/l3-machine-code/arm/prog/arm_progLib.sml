@@ -903,7 +903,7 @@ val () = set_trace "QUANT_INST_DEBUG" 3
 val () = set_trace "QUANT_INST_DEBUG_DEPTH" 2000
 val () = set_trace "QUANT_INST___REC_DEPTH" 20000
 val () = set_trace "QUANT_INST___print_term_length" 2000
-val () = set_trace "Rewrite" 1
+(* val () = set_trace "Rewrite" 1 *)
 val () = set_trace "TFL rewrite monitoring" 20
 val () = set_trace "Theory.debug" 1
 val () = set_trace "Theory.save_thm_reporting" 2
@@ -952,9 +952,20 @@ val () = set_trace "word decide" 1
 (* val () = set_trace "word pp as 2's comp" 1
 val () = set_trace "word printing" 6 *)
 
-val () = print "AAA"
-val th = Count.apply arm_spec_hex "e12fff1e"
-val () = print "BBB"
+
+val () = PolyML.Compiler.debug := true;
+open PolyML.Debug;
+
+(* val () = print "AAA" *)
+fun f () = arm_spec_hex "e12fff1e";
+
+val () = breakIn "f";
+
+val _ = delsimps ["lift_disj_eq", "lift_imp_disj"]
+
+val th = PolyML.Exception.exception_trace f;
+
+(* val () = print "BBB" *)
 
 (* arm_progLib.arm_spec_hex "e12fff1e" *)
 

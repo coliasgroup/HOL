@@ -51,7 +51,7 @@ fun default_prover (t, tac) = TAC_PROOF (([], t), tac)
 local
    val mesg = Lib.with_flag (Feedback.MESG_to_string, Lib.I) Feedback.HOL_MESG
    fun provide_feedback f (t, tac: tactic) =
-      f (t, tac)
+      PolyML.exception_trace (fn () => f (t, tac))
       handle (e as HOL_ERR {message = m, origin_function = f, ...}) =>
            (mesg ("Proof of \n\n" ^ Parse.term_to_string t ^ "\n\nfailed.\n")
             ; (case (m, f, unsolved ()) of

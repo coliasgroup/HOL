@@ -203,8 +203,8 @@ val strip_comb =
 fun dest_quadop c e tm =
    case with_exn strip_comb tm e of
       (t, [t1, t2, t3, t4]) =>
-         if same_const t c then (t1, t2, t3, t4) else raise e
-    | _ => raise e
+         if same_const t c then (t1, t2, t3, t4) else raise (ERR "FOO" "BAR2")
+    | _ => raise (ERR "FOO" "BAR1")
 
 local
    val mk_aty = list_mk_rbinop (Lib.curry Type.-->)
@@ -229,7 +229,7 @@ in
          val () =
             ignore (List.length (args tm) = n
                     orelse raise ERR "syntax_fns" "bad number of arguments")
-         val d = dest tm (ERR ("dest_" ^ name) "")
+         val d = dest tm (ERR ("dest_" ^ name) "BAR0")
       in
          (tm,
           fn v => Lib.with_exn (make tm) v (ERR ("mk_" ^ name) ""): term,
