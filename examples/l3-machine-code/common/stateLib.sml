@@ -1867,8 +1867,10 @@ in
             \\ CONJ_TAC
             >- (
                 MATCH_MP_TAC dthm
+                (* \\ (fn _ => (print "&HERE&\n"; raise ERR "FOO" "BAR")) (* hits *) *)
                 \\ NEXT_TAC
                )
+             \\ (fn _ => (print "&HERE&\n"; raise ERR "FOO" "BAR")) (* doesn't hit *)
             \\ POST_TAC
       in
 (*
@@ -1883,6 +1885,7 @@ val (thm,t) = hd thm_ts
                val _ = Hol_pp.pp_thm thm
                val _ = print "term:\n"
                val _ = Hol_pp.pp_term t
+               val _ = temp_delsimps ["lift_disj_eq", "lift_imp_disj"]
                val ret = Tactical.prove (t, tac (v, dthm))
                val _ = print "DDD\n"
                (* val _ = if not (temporal_stateSyntax.is_temporal_next (Thm.concl ret) orelse progSyntax.is_spec (Thm.concl ret)) then print "!!! not tnext !!!\n" else () *)
