@@ -1883,7 +1883,7 @@ val (thm,t) = hd thm_ts
                val _ = Hol_pp.pp_thm thm
                val _ = print "term:\n"
                val _ = Hol_pp.pp_term t
-               val ret = prove (t, tac (v, dthm))
+               val ret = Tactical.prove (t, tac (v, dthm))
                val _ = print "DDD\n"
                (* val _ = if not (temporal_stateSyntax.is_temporal_next (Thm.concl ret) orelse progSyntax.is_spec (Thm.concl ret)) then print "!!! not tnext !!!\n" else () *)
                val () = (temporal_stateSyntax.dest_pre' (Thm.concl ret); ()) handle e => print "****wat*****\n"
