@@ -176,7 +176,7 @@ fun thm v x y =
          `\v:word32 i. arm_d_word8 (EL i ^v)`, x, y]
    |> Conv.CONV_RULE
         (Conv.LAND_CONV
-            (SIMP_CONV (srw_ss())
+            (SIMP_CONV (srw_ss()  -* ["lift_disj_eq", "lift_imp_disj"])
                [arm_MEM_def, arm_WORD_def, arm_BE_WORD_def,
                 pred_setTheory.INSERT_UNION_EQ, lem,
                 set_sepTheory.STAR_def, set_sepTheory.SPLIT_def,
@@ -331,7 +331,7 @@ val sub_intro = Theory.save_thm("sub_intro",
       ``(a + (-b + c) = a - b + c : word32) /\ (a + -b = a - b)``
    )
 
-val tac = asm_simp_tac (srw_ss()++wordsLib.WORD_CANCEL_ss)
+val tac = asm_simp_tac ((srw_ss()++wordsLib.WORD_CANCEL_ss)  -* ["lift_disj_eq", "lift_imp_disj"])
              [pred_setTheory.INSERT_INTER]
 
 (*

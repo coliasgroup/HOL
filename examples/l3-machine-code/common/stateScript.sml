@@ -311,7 +311,7 @@ val STATE_SPEC_CODE =
      |> boolSyntax.rator
      |> boolSyntax.rator
      |> boolSyntax.rand) SPEC_CODE
-   |> SIMP_RULE std_ss []
+   |> SIMP_RULE (std_ss -* ["lift_disj_eq", "lift_imp_disj"]) []
    |> Drule.GEN_ALL
 
 val IMP_R_SPEC = Theory.save_thm ("IMP_R_SPEC",
@@ -490,7 +490,7 @@ Proof
    \\ metis_tac []
 QED
 
-val cnv = SIMP_CONV (srw_ss()) [DECIDE ``i < 1n = (i = 0)``]
+val cnv = SIMP_CONV (srw_ss() -* ["lift_disj_eq", "lift_imp_disj"]) [DECIDE ``i < 1n = (i = 0)``]
 
 val MAPPED_COMPONENT_INSERT1 = Theory.save_thm("MAPPED_COMPONENT_INSERT1",
    MAPPED_COMPONENT_INSERT
