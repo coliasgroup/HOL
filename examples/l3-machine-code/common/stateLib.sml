@@ -1769,7 +1769,7 @@ val (imp_spec, imp_temp, read_thms, write_thms, select_state_thms,
 *)
 
 local
-   val spec_debug = ref false
+   val spec_debug = ref true
    val () = Feedback.register_btrace ("stateLib.spec", spec_debug)
    val PRINT_TAC =
       RULE_ASSUM_TAC (CONV_RULE PRINT_CONV) THEN CONV_TAC PRINT_CONV

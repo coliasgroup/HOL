@@ -31,9 +31,12 @@ in
               val ws = List.tabulate (List.length r, w_var)
               val l =
                 List.map (fn (v, hx) => v |-> word32 hx) (ListPair.zip (ws, r))
+               val () = print "x0 good"
+               val x1 = arm_progLib.arm_spec_hex h
+               val () = print "x1 good"
            in
               List.map (arm_OK_intro l)
-                 (stateLib.fix_precond (arm_progLib.arm_spec_hex h))
+                 (stateLib.fix_precond x1)
            end
        | _ => raise ERR "l3_arm_triples" "empty string"
    fun l3_arm_spec hex =
@@ -108,5 +111,10 @@ val () = armAssemblerLib.print_arm_code q
 val (test_cert, test_def) = arm_decompile_code "test" q
 
 *)
+
+val () = print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+val th = l3_arm_spec "e12fff1e"
+val () = print "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+
 
 end
