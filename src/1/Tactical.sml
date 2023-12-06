@@ -54,6 +54,11 @@ local
       PolyML.exception_trace (fn () => f (t, tac))
       handle (e as HOL_ERR {message = m, origin_function = f, ...}) =>
            (mesg ("Proof of \n\n" ^ Parse.term_to_string t ^ "\n\nfailed.\n")
+            ; (case unsolved () of
+                  (_, u)::_ =>
+                      mesg ("First unsolved sub-goal is\n\n" ^
+                                 Parse.term_to_string u ^ "\n\n")
+                | _ => ())
             ; (case (m, f, unsolved ()) of
                   ("unsolved goals", "TAC_PROOF", (_, u)::_) =>
                       if Term.term_eq u t

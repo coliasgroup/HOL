@@ -96,7 +96,7 @@ in
    fun update_frame_state_thm proj_def =
       let
          val tac =
-            Cases THEN SRW_TAC [] [proj_def, combinTheory.APPLY_UPDATE_THM]
+            Cases THEN SRW_TAC [] [proj_def, combinTheory.APPLY_UPDATE_THM, Excl "lift_disj_eq"]
          val proj = utilsLib.get_function proj_def
          val th = Drule.ISPEC proj stateTheory.UPDATE_FRAME_STATE
          val {Thy = p_thy, Name = n, Ty = ty, ...} = Term.dest_thy_const proj
@@ -167,7 +167,7 @@ local
       NTAC 2 STRIP_TAC
       THEN REWRITE_TAC [stateTheory.FRAME_STATE_def, stateTheory.STATE_def,
                         stateTheory.SELECT_STATE_def, set_sepTheory.fun2set_def]
-      THEN SRW_TAC [] [pred_setTheory.EXTENSION, pred_setTheory.GSPECIFICATION]
+      THEN SRW_TAC [] [pred_setTheory.EXTENSION, pred_setTheory.GSPECIFICATION, Excl "lift_disj_eq"]
       THEN EQ_TAC
       THEN STRIP_TAC
       THEN Q.EXISTS_TAC `a`
@@ -208,13 +208,13 @@ local
           (!c d. (c, d) IN set (x :: y) ==> (m s c = d)) =
           (!c d. ((c, d) = x) ==> (m s c = d)) /\
           (!c d. ((c, d) IN set y) ==> (m s c = d))`,
-      SRW_TAC [] [] \\ utilsLib.qm_tac [])
+      SRW_TAC [] [Excl "lift_disj_eq"] \\ utilsLib.qm_tac [])
    val EXPAND_lem2 = Q.prove(
       `!x:'a # 'b y m s:'c c:'d.
           (!c d. (c, d) IN x INSERT y ==> (m s c = d)) =
           (!c d. ((c, d) = x) ==> (m s c = d)) /\
           (!c d. ((c, d) IN y) ==> (m s c = d))`,
-      SRW_TAC [] [] \\ utilsLib.qm_tac [])
+      SRW_TAC [] [Excl "lift_disj_eq"] \\ utilsLib.qm_tac [])
    val emp_thm =
       set_sepTheory.SEP_CLAUSES
       |> Drule.SPEC_ALL
