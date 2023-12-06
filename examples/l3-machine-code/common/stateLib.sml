@@ -143,7 +143,7 @@ in
                val u = Term.list_mk_abs ([s, a, !w], u)
                val l = if not_map then Lib.butlast l else l
                val r = Term.mk_abs (s, iter true s l)
-               val thm = th |> Drule.ISPECL [f, u, r] |> SIMP_RULE (srw_ss()) []
+               val thm = th |> Drule.ISPECL [f, u, r] |> SIMP_RULE (srw_ss() -* ["lift_disj_eq", "lift_imp_disj"]) []
                val p = fst (boolSyntax.dest_imp (Thm.concl thm))
                val p_thm = Tactical.prove (p, tac)
             in
@@ -175,7 +175,7 @@ local
    fun prove_hidden thm u =
       let
          val p = utilsLib.get_function thm
-         val t = tac THEN FULL_SIMP_TAC (srw_ss()) [thm]
+         val t = tac THEN FULL_SIMP_TAC (srw_ss() -* ["lift_disj_eq", "lift_imp_disj"]) [thm]
       in
          Drule.GEN_ALL
            (Q.prove (`!y s. FRAME_STATE ^p y ^u = FRAME_STATE ^p y s`, t))
@@ -236,7 +236,7 @@ in
                (Conv.FORK_CONV
                    (REWRITE_CONV [GSYM thm, emp_thm],
                     REWRITE_CONV [tm_thm, EXPAND_lem, EXPAND_lem2]
-                    THENC SIMP_CONV (srw_ss()) [proj_def, emp_SELECT_STATE])))
+                    THENC SIMP_CONV (srw_ss()-* ["lift_disj_eq", "lift_imp_disj"]) [proj_def, emp_SELECT_STATE])))
          |> Drule.GEN_ALL
       end
    fun pool_select_state_thm proj_def thms instr_def =
@@ -497,7 +497,7 @@ fun define_map_component (s, f, def) =
                                 |> Thm.concl
                                 |> boolSyntax.dest_imp |> fst
                                 |> boolSyntax.dest_conj
-      val comp_11 = simpLib.SIMP_PROVE (srw_ss()) [] tm_11
+      val comp_11 = simpLib.SIMP_PROVE (srw_ss()-* ["lift_disj_eq", "lift_imp_disj"]) [] tm_11
       val (v_df, def_tm) = boolSyntax.dest_forall def_tm
       val (v_f, def_tm) = boolSyntax.dest_forall def_tm
       val v_df' = Term.mk_var ("d" ^ f, Term.type_of v_df)
@@ -1079,10 +1079,10 @@ in
                  (fn () => Term.genvar d_ty,
                   fn (d, c) => d |-> Term.mk_comb (f, c))
          val update_ss =
-            bool_ss ++
+            (bool_ss ++
             simpLib.rewrites
                [updateTheory.APPLY_UPDATE_ID, combinTheory.UPDATE_APPLY,
-                combinTheory.UPDATE_APPLY_IMP_ID]
+                combinTheory.UPDATE_APPLY_IMP_ID]) -* ["lift_disj_eq", "lift_imp_disj"]
       in
          fn th =>
             let
@@ -1119,7 +1119,7 @@ in
                              then (rwt, apply_id_rule)
                           else (utilsLib.ALL_HYP_CONV_RULE
                                   (REWRITE_CONV ineqs) rwt,
-                                SIMP_RULE (update_ss++simpLib.rewrites ineqs)[])
+                                SIMP_RULE ((update_ss++simpLib.rewrites ineqs) -* ["lift_disj_eq", "lift_imp_disj"])[])
                     in
                        th |> SPECC_FRAME_RULE frame
                           |> helperLib.PRE_POST_RULE
@@ -1277,7 +1277,7 @@ fun get_pc_delta is_pc =
 
 local
    fun f q =
-     boolTheory.COND_RAND |> Q.ISPEC q |> SIMP_RULE std_ss [] |> Drule.GEN_ALL
+     boolTheory.COND_RAND |> Q.ISPEC q |> SIMP_RULE (std_ss-* ["lift_disj_eq", "lift_imp_disj"]) [] |> Drule.GEN_ALL
    val COND_RAND_CONV =
      PURE_REWRITE_CONV
        (List.map f [`\n : 'a word. n + z`, `\n : 'a word. z + n`,
@@ -1821,10 +1821,10 @@ in
             PURE_ASM_REWRITE_TAC write_thms
             \\ Tactical.REVERSE CONJ_TAC
             >- (
-                ASM_SIMP_TAC (pure_ss++simpLib.rewrites frame_thms) []
+                ASM_SIMP_TAC ((pure_ss ++ simpLib.rewrites frame_thms) -* ["lift_disj_eq", "lift_imp_disj"]) []
                 \\ (
                     REFL_TAC
-                    ORELSE (RW_TAC pure_ss frame_thms
+                    ORELSE (RW_TAC (pure_ss-* ["lift_disj_eq", "lift_imp_disj"]) frame_thms
                             \\ (REFL_TAC ORELSE PRINT_TAC))
                    )
                )
@@ -1878,9 +1878,13 @@ val (thm,t) = hd thm_ts
             let
                val v = optionSyntax.dest_some (utilsLib.rhsc thm)
                val dthm = AND_IMP_INTRO_RULE (Drule.DISCH_ALL thm)
-               val _ = print "CCC"
+               val _ = print "CCC\n"
+               val _ = print "thm:\n"
+               val _ = Hol_pp.pp_thm thm
+               val _ = print "term:\n"
+               val _ = Hol_pp.pp_term t
                val ret = prove (t, tac (v, dthm))
-               val _ = print "DDD"
+               val _ = print "DDD\n"
                (* val _ = if not (temporal_stateSyntax.is_temporal_next (Thm.concl ret) orelse progSyntax.is_spec (Thm.concl ret)) then print "!!! not tnext !!!\n" else () *)
                val () = (temporal_stateSyntax.dest_pre' (Thm.concl ret); ()) handle e => print "****wat*****\n"
             in

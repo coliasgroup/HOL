@@ -440,7 +440,7 @@ local
       helperLib.MERGE_CONDS_RULE o TRY_DISCH_RULE o
       PURE_REWRITE_RULE arm_CPSR_T_F
    val addr_eq_conv =
-      SIMP_CONV (bool_ss++wordsLib.WORD_ARITH_ss++wordsLib.WORD_ARITH_EQ_ss) []
+      SIMP_CONV ((bool_ss++wordsLib.WORD_ARITH_ss++wordsLib.WORD_ARITH_EQ_ss) -* ["lift_disj_eq", "lift_imp_disj"]) []
    val reg_eq_conv = PURE_REWRITE_CONV [arm_stepTheory.R_mode_11]
                      THENC Conv.DEPTH_CONV wordsLib.word_EQ_CONV
                      THENC REWRITE_CONV []
@@ -504,7 +504,7 @@ in
    val word_memory_introduction =
       Conv.CONV_RULE
          (stateLib.PRE_COND_CONV
-            (SIMP_CONV (bool_ss++boolSimps.CONJ_ss)
+            (SIMP_CONV ((bool_ss++boolSimps.CONJ_ss) -* ["lift_disj_eq", "lift_imp_disj"])
                 [aligned_cond_rand, alignmentTheory.aligned_numeric])) o
       concat_bytes_rule o
       stateLib.pick_endian_rule
@@ -953,6 +953,7 @@ val () = set_trace "word decide" 1
 (* val () = set_trace "word pp as 2's comp" 1
 val () = set_trace "word printing" 6 *)
 
+(* val () = set_trace "types" 1 *)
 
 val () = PolyML.Compiler.debug := true;
 open PolyML.Debug;
