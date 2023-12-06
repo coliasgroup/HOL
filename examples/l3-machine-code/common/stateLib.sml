@@ -13,6 +13,10 @@ structure Parse = struct
 end
 open Parse
 
+val std_ss = std_ss -* ["lift_disj_eq", "lift_imp_disj"]
+val bool_ss = bool_ss -* ["lift_disj_eq", "lift_imp_disj"]
+val list_ss = list_ss -* ["lift_disj_eq", "lift_imp_disj"]
+
 val ERR = Feedback.mk_HOL_ERR "stateLib"
 
 (* ------------------------------------------------------------------------ *)
@@ -143,7 +147,7 @@ in
                val u = Term.list_mk_abs ([s, a, !w], u)
                val l = if not_map then Lib.butlast l else l
                val r = Term.mk_abs (s, iter true s l)
-               val thm = th |> Drule.ISPECL [f, u, r] |> SIMP_RULE (srw_ss()) []
+               val thm = th |> Drule.ISPECL [f, u, r] |> SIMP_RULE (srw_ss()) [Excl "lift_disj_eq", Excl "lift_imp_disj"]
                val p = fst (boolSyntax.dest_imp (Thm.concl thm))
                val p_thm = Tactical.prove (p, tac)
             in
@@ -175,7 +179,7 @@ local
    fun prove_hidden thm u =
       let
          val p = utilsLib.get_function thm
-         val t = tac THEN FULL_SIMP_TAC (srw_ss()) [thm]
+         val t = tac THEN FULL_SIMP_TAC (srw_ss()) [thm, Excl "lift_disj_eq", Excl "lift_imp_disj"]
       in
          Drule.GEN_ALL
            (Q.prove (`!y s. FRAME_STATE ^p y ^u = FRAME_STATE ^p y s`, t))
@@ -236,7 +240,7 @@ in
                (Conv.FORK_CONV
                    (REWRITE_CONV [GSYM thm, emp_thm],
                     REWRITE_CONV [tm_thm, EXPAND_lem, EXPAND_lem2]
-                    THENC SIMP_CONV (srw_ss()) [proj_def, emp_SELECT_STATE])))
+                    THENC SIMP_CONV (srw_ss()) [proj_def, emp_SELECT_STATE, Excl "lift_disj_eq", Excl "lift_imp_disj"])))
          |> Drule.GEN_ALL
       end
    fun pool_select_state_thm proj_def thms instr_def =
@@ -497,7 +501,7 @@ fun define_map_component (s, f, def) =
                                 |> Thm.concl
                                 |> boolSyntax.dest_imp |> fst
                                 |> boolSyntax.dest_conj
-      val comp_11 = simpLib.SIMP_PROVE (srw_ss()) [] tm_11
+      val comp_11 = simpLib.SIMP_PROVE (srw_ss()) [Excl "lift_disj_eq", Excl "lift_imp_disj"] tm_11
       val (v_df, def_tm) = boolSyntax.dest_forall def_tm
       val (v_f, def_tm) = boolSyntax.dest_forall def_tm
       val v_df' = Term.mk_var ("d" ^ f, Term.type_of v_df)
@@ -1119,7 +1123,7 @@ in
                              then (rwt, apply_id_rule)
                           else (utilsLib.ALL_HYP_CONV_RULE
                                   (REWRITE_CONV ineqs) rwt,
-                                SIMP_RULE (update_ss++simpLib.rewrites ineqs)[])
+                                SIMP_RULE (update_ss++simpLib.rewrites ineqs)[Excl "lift_disj_eq", Excl "lift_imp_disj"])
                     in
                        th |> SPECC_FRAME_RULE frame
                           |> helperLib.PRE_POST_RULE
@@ -1277,7 +1281,7 @@ fun get_pc_delta is_pc =
 
 local
    fun f q =
-     boolTheory.COND_RAND |> Q.ISPEC q |> SIMP_RULE std_ss [] |> Drule.GEN_ALL
+     boolTheory.COND_RAND |> Q.ISPEC q |> SIMP_RULE std_ss [Excl "lift_disj_eq", Excl "lift_imp_disj"] |> Drule.GEN_ALL
    val COND_RAND_CONV =
      PURE_REWRITE_CONV
        (List.map f [`\n : 'a word. n + z`, `\n : 'a word. z + n`,
@@ -1805,6 +1809,10 @@ in
    fun spec imp_spec imp_temp read_thms write_thms select_state_thms frame_thms
             component_11 map_tys EXTRA_TAC STATE_TAC =
       let
+         (* val std_ss = std_ss -* ["lift_disj_eq", "lift_imp_disj"] *)
+         (* val list_ss = list_ss -* ["lift_disj_eq", "lift_imp_disj"] *)
+         val _ = delsimps ["lift_disj_eq", "lift_imp_disj"]
+
          val sthms = cond_STAR1_I :: select_state_thms
          val pthms = [boolTheory.DE_MORGAN_THM, pred_setTheory.NOT_IN_EMPTY,
                       pred_setTheory.IN_DIFF, pred_setTheory.IN_INSERT]
@@ -1821,7 +1829,7 @@ in
             PURE_ASM_REWRITE_TAC write_thms
             \\ Tactical.REVERSE CONJ_TAC
             >- (
-                ASM_SIMP_TAC (pure_ss++simpLib.rewrites frame_thms) []
+                ASM_SIMP_TAC (pure_ss++simpLib.rewrites frame_thms) [Excl "lift_disj_eq", Excl "lift_imp_disj"]
                 \\ (
                     REFL_TAC
                     ORELSE (RW_TAC pure_ss frame_thms
@@ -1884,10 +1892,10 @@ val (thm,t) = hd thm_ts
                *)
                prove (t, tac (v, dthm))
             end
-            handle e as HOL_ERR _ =>
+            (* handle e as HOL_ERR _ =>
                    (if !spec_debug
                        then (proofManagerLib.set_goal ([], t); thm)
-                    else raise e)
+                    else raise e) *)
       end
 end
 

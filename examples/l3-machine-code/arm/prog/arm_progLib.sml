@@ -865,7 +865,8 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
-val () = set_trace "stateLib.spec" 1
+val () = set_trace "stateLib.spec" 1;
+val () = set_trace "Rewrite" 1;
 
 val () = print "AAA"
 val th = arm_spec_hex "e12fff1e"

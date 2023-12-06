@@ -3,6 +3,11 @@ open set_sepTheory progTheory
 
 val _ = new_theory "state"
 
+val std_ss = std_ss -* ["lift_disj_eq", "lift_imp_disj"]
+val bool_ss = bool_ss -* ["lift_disj_eq", "lift_imp_disj"]
+val list_ss = list_ss -* ["lift_disj_eq", "lift_imp_disj"]
+val _ = temp_delsimps ["lift_disj_eq", "lift_imp_disj"]
+
 infix \\
 val op \\ = op THEN;
 
@@ -486,6 +491,10 @@ val MAPPED_COMPONENT_INSERT = Q.store_thm("MAPPED_COMPONENT_INSERT",
                    pred_setTheory.DISJOINT_DEF, pred_setTheory.EXTENSION]
    \\ rw [boolTheory.PULL_EXISTS, combinTheory.APPLY_UPDATE_THM,
           listTheory.MEM_GENLIST]
+   >- metis_tac []
+   \\ Cases_on `x'`     \\ simp [] (* shouldn't rely on name here *)
+   \\ Cases_on `i < n`  \\ simp []
+   \\ Cases_on `i' < n` \\ simp []
    \\ metis_tac []
    )
 
