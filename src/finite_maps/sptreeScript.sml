@@ -956,10 +956,10 @@ val toList_def = Define`toList m = toListA [] m`
 
 val isEmpty_toList = store_thm("isEmpty_toList",
   ``!t. wf t ==> ((t = LN) <=> (toList t = []))``,
-  rw[toList_def,isEmpty_toListA]);
+  rw[toList_def,isEmpty_toListA])
 
 val lem2 =
-  SIMP_RULE (srw_ss()) [] (Q.SPECL[`2`,`1`]DIV_MULT);
+  SIMP_RULE (srw_ss()) [] (Q.SPECL[`2`,`1`]DIV_MULT)
 
 fun tac () = (
   (disj2_tac >> qexists_tac`0` >> simp[] >> NO_TAC) ORELSE
@@ -973,7 +973,7 @@ fun tac () = (
    REWRITE_TAC[Once MULT_COMM] >> simp[lem2] >>
    rw[] >> `F` suffices_by rw[] >> pop_assum mp_tac >>
    simp[lemmas] >> NO_TAC) ORELSE
-  (metis_tac[]));
+  (metis_tac[]))
 
 val MEM_toListA = prove(
   ``!t acc x. MEM x (toListA acc t) <=> (MEM x acc \/ ?k. lookup k t = SOME x)``,
@@ -987,11 +987,11 @@ val MEM_toListA = prove(
   >- (tac())
   >- (tac())
   >- (tac())
-  >- (tac()));
+  >- (tac()))
 
 val MEM_toList = store_thm("MEM_toList",
   ``!x t. MEM x (toList t) <=> ?k. lookup k t = SOME x``,
-  rw[toList_def,MEM_toListA]);
+  rw[toList_def,MEM_toListA])
 
 val div2_even_lemma = prove(
   ``!x. ?n. (x = (n - 1) DIV 2) /\ EVEN n /\ 0 < n``,
@@ -1005,7 +1005,7 @@ val div2_even_lemma = prove(
   simp[] >> disch_then kall_tac >>
   qspec_then`2`mp_tac ADD_DIV_ADD_DIV >> simp[] >>
   disch_then(qspecl_then[`m`,`1`]mp_tac) >>
-  simp[]);
+  simp[])
 
 val div2_odd_lemma = prove(
   ``!x. ?n. (x = (n - 1) DIV 2) /\ ODD n /\ 0 < n``,
@@ -1019,11 +1019,11 @@ val div2_odd_lemma = prove(
   simp[] >> disch_then kall_tac >>
   qspec_then`2`mp_tac ADD_DIV_ADD_DIV >> simp[] >>
   disch_then(qspecl_then[`m`,`0`]mp_tac) >>
-  simp[]);
+  simp[])
 
 val spt_eq_thm = store_thm("spt_eq_thm",
   ``!t1 t2. wf t1 /\ wf t2 ==>
-            ((t1 = t2) <=> !n. lookup n t1 = lookup n t2)``,
+           ((t1 = t2) <=> !n. lookup n t1 = lookup n t2)``,
   Induct >> simp[wf_def,lookup_def]
   >- (
     rw[EQ_IMP_THM] >> rw[lookup_def] >>
