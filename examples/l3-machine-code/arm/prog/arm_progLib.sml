@@ -866,8 +866,10 @@ in
 end
 
 val () = print "AAA"
-val th = arm_spec_hex "e12fff1e"
+(* val th = arm_spec_hex "e12fff1e" *)
 val () = print "BBB"
+
+(* arm_progLib.arm_spec_hex "e12fff1e" *)
 
 (* ------------------------------------------------------------------------ *)
 

@@ -1878,11 +1878,15 @@ val (thm,t) = hd thm_ts
             let
                val v = optionSyntax.dest_some (utilsLib.rhsc thm)
                val dthm = AND_IMP_INTRO_RULE (Drule.DISCH_ALL thm)
+               val _ = print "CCC"
+               val ret = prove (t, tac (v, dthm))
+               val _ = print "DDD"
             in
                (*
                   set_goal ([], t)
                *)
-               prove (t, tac (v, dthm))
+               (* prove (t, tac (v, dthm)) *)
+               ret
             end
             handle e as HOL_ERR _ =>
                    (if !spec_debug
