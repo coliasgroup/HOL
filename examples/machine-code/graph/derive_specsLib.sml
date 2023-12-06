@@ -791,4 +791,9 @@ val th = arm_spec instruction
 
 *)
 
+val l3_arm_tools = arm_decompLib.l3_arm_tools
+val (arm_spec,_,_,_) = l3_arm_tools
+val instruction = "e12fff1e"
+val th = arm_spec instruction
+
 end
