@@ -642,6 +642,8 @@ fun remove_ssfrags (ss as SS{history,limit,...}) names =
 
  exception CONVNET of net;
 
+val hack = ref (fn () => ());
+
  fun rewriter_for_ss (SS{mk_rewrs,travrules,initial_net,...}) = let
    fun addcontext (context,thms) = let
      val net = (raise context) handle CONVNET net => net
@@ -655,7 +657,12 @@ fun remove_ssfrags (ss as SS{history,limit,...}) names =
    fun apply {solver,conv,context,stack,relation} tm = let
      val net = (raise context) handle CONVNET net => net
    in
-     tryfind (fn {ci = {conval,...},...} => conval solver stack tm)
+     tryfind (fn {ci = {conval,name,...},...} =>
+                let
+                  val r = conval solver stack tm;
+                  val _ = (!hack) name;
+                in
+                  name)
              (lookup tm net)
    end
    in REDUCER {name=SOME"rewriter_for_ss",
