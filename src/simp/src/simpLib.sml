@@ -644,6 +644,7 @@ fun remove_ssfrags (ss as SS{history,limit,...}) names =
 
 val hack1 = ref (fn _ => ());
 val hack2 = ref (fn _ => ());
+val hack3 = ref (fn _ => ());
 
  fun rewriter_for_ss (SS{mk_rewrs,travrules,initial_net,...}) = let
    fun addcontext (context,thms) = let
@@ -657,12 +658,13 @@ val hack2 = ref (fn _ => ());
    end
    fun apply {solver,conv,context,stack,relation} tm = let
      val net = (raise context) handle CONVNET net => net
+     val () = (!hack3) ();
    in
      tryfind (fn {ci = {conval,name,...},...} =>
                 let
-                  val _ = (!hack1) name;
+                  val () = (!hack1) name;
                   val r = conval solver stack tm;
-                  val _ = (!hack2) name;
+                  val () = (!hack2) name;
                 in
                   r
                 end)

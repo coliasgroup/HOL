@@ -133,6 +133,7 @@ sig
 
   val hack1 : (string -> unit) ref
   val hack2 : (string -> unit) ref
+  val hack3 : (unit -> unit) ref
 
   val traversedata_for_ss: simpset -> Traverse.traverse_data
 
