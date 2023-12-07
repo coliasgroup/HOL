@@ -3,7 +3,7 @@ open arm_progLib;
 (*
 *)
 (* val () = print "Testing...\n"; *)
-val _ = arm_spec_hex "e12fff1e";
+(* val _ = arm_spec_hex "e12fff1e"; *)
 (* val _ = arm_spec_hex "e16f5f15"; *)
 (* val () = print "PASS\n"; *)
 (*

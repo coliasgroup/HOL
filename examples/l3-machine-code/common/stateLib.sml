@@ -6,6 +6,8 @@ open updateLib utilsLib
 open stateTheory temporal_stateTheory
 open helperLib progSyntax temporalSyntax temporal_stateSyntax
 
+val () = PolyML.Compiler.debug := true;
+
 structure Parse = struct
   open Parse
   val (Type, Term) =
@@ -1869,6 +1871,7 @@ in
                 MATCH_MP_TAC dthm
                 \\ NEXT_TAC
                )
+            \\ (fn _ => (print "<><><>\n"; raise ERR "<><><>" "<><><>"))
             \\ POST_TAC
       in
 (*

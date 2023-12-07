@@ -4,6 +4,8 @@ struct
 open HolKernel boolLib bossLib
 open stateLib spec_databaseLib arm_progTheory
 
+val () = PolyML.Compiler.debug := true;
+
 structure Parse =
 struct
    open Parse
@@ -864,6 +866,15 @@ in
       List.map arm_spec_hex o
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
+
+val () = PolyML.Debug.trace true;
+
+fun onExitException (fun_name, loc) e =
+   print ("Exception: " ^ fun_name ^ " " ^ PolyML.makestring loc ^ " " ^ PolyML.makestring e ^ "\n");
+
+val () = PolyML.DebuggerInterface.setOnExitException (SOME onExitException);
+
+val _ = arm_spec_hex "e12fff1e";
 
 (* ------------------------------------------------------------------------ *)
 

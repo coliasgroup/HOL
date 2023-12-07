@@ -15,6 +15,8 @@ struct
 
 open Feedback HolKernel Drule Conv boolSyntax Abbrev
 
+val () = PolyML.Compiler.debug := true;
+
 val ERR = mk_HOL_ERR "Tactical"
 
 fun empty th [] = th
