@@ -1887,6 +1887,7 @@ val (thm,t) = hd thm_ts
                *)
                prove (t, tac (v, dthm))
             end
+            handle e as HOL_ERR _ => raise e
             (* handle e as HOL_ERR _ =>
                    (if !spec_debug
                        then (proofManagerLib.set_goal ([], t); thm)

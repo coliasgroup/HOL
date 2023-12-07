@@ -867,10 +867,10 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
-val () = PolyML.Debug.trace true;
+(* val () = PolyML.Debug.trace true; *)
 
 fun onExitException (fun_name, loc) e =
-   if fun_name <> "monadsyntax.print_monads" andalso fun_name <> "Rewrite.REWRITES_CONV" then   
+   (* if fun_name <> "monadsyntax.print_monads" andalso fun_name <> "Rewrite.REWRITES_CONV" then   
       let
          val () = print ("[Exception]\n  " ^ fun_name ^ " " ^ PolyML.makestring loc ^ " " ^ PolyML.makestring e ^ "\n");
          val () = print "[State]\n";
@@ -893,10 +893,10 @@ fun onExitException (fun_name, loc) e =
       in
          ()
       end
-   else
+   else *)
       ()
 
-val () = PolyML.DebuggerInterface.setOnExitException (SOME onExitException);
+(* val () = PolyML.DebuggerInterface.setOnExitException (SOME onExitException); *)
 
 val _ = arm_spec_hex "e12fff1e";
 
