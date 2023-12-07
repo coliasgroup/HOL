@@ -1,32 +1,10 @@
 open arm_progLib;
 
-
-(*
-PolyML.Compiler.debug := true;
-fun addList a l =
-   let
-       fun f (b,c) = a+b+c
-   in
-       case l of
-             [] => a
-           | (x::y) =>
-               let
-                   val v = f x
-                   val l' = y
-               in
-                   addList v l
-               end
-   end;
-open PolyML.Debug;
-breakIn "f";
-addList 0 [(1,2), (3, 4)];
-*)
-
 (*
 *)
 (* val () = print "Testing...\n"; *)
-(* val th = arm_spec_hex "e12fff1e"; *)
-(* val th = arm_spec_hex "e16f5f15"; *)
+val _ = arm_spec_hex "e12fff1e";
+(* val _ = arm_spec_hex "e16f5f15"; *)
 (* val () = print "PASS\n"; *)
 (*
 *)
