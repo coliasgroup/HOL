@@ -642,7 +642,7 @@ fun remove_ssfrags (ss as SS{history,limit,...}) names =
 
  exception CONVNET of net;
 
-val hack = ref (fn () => ());
+val hack = ref (fn _ => ());
 
  fun rewriter_for_ss (SS{mk_rewrs,travrules,initial_net,...}) = let
    fun addcontext (context,thms) = let
