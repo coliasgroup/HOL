@@ -646,6 +646,8 @@ val hack1 = ref (fn _ => ());
 val hack2 = ref (fn _ => ());
 val hack3 = ref (fn _ => ());
 
+exception FFF;
+
  fun rewriter_for_ss (SS{mk_rewrs,travrules,initial_net,...}) = let
    fun addcontext (context,thms) = let
      val net = (raise context) handle CONVNET net => net
@@ -657,11 +659,13 @@ val hack3 = ref (fn _ => ());
        (net_add_convs net (List.mapPartial mk_rewr_convdata new_rwts))
    end
    fun apply {solver,conv,context,stack,relation} tm = let
-     val net = (raise context) handle CONVNET net => net;
      val () = (!hack3) ();
+     val () = (print "XXX\n"; raise FFF);
+     val net = (raise context) handle CONVNET net => net;
    in
      tryfind (fn {ci = {conval,name,...},...} =>
                 let
+                  val () = (print "YYY\n"; raise FFF);
                   val () = (!hack1) name;
                   val r = conval solver stack tm;
                   val () = (!hack2) name;
