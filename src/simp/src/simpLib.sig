@@ -131,7 +131,7 @@ sig
 
   val add_relsimp  : relsimpdata -> simpset -> simpset
 
-  val hack : (unit -> unit) ref
+  val hack : (string -> unit) ref
 
   val traversedata_for_ss: simpset -> Traverse.traverse_data
 

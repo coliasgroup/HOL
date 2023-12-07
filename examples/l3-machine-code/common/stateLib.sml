@@ -6,8 +6,6 @@ open updateLib utilsLib
 open stateTheory temporal_stateTheory
 open helperLib progSyntax temporalSyntax temporal_stateSyntax
 
-val () = PolyML.Compiler.debug := true;
-
 structure Parse = struct
   open Parse
   val (Type, Term) =
@@ -1871,7 +1869,6 @@ in
                 MATCH_MP_TAC dthm
                 \\ NEXT_TAC
                )
-            (* \\ (fn _ => (print "<><><>\n"; raise ERR "<><><>" "<><><>")) *)
             \\ POST_TAC
       in
 (*
@@ -1887,16 +1884,13 @@ val (thm,t) = hd thm_ts
                *)
                prove (t, tac (v, dthm))
             end
-            (* handle e as HOL_ERR _ => raise e *)
-            (* handle e as HOL_ERR _ =>
+            handle e as HOL_ERR _ =>
                    (if !spec_debug
                        then (proofManagerLib.set_goal ([], t); thm)
-                    else raise e) *)
+                    else raise e)
       end
 end
 
 (* ------------------------------------------------------------------------ *)
-
-(* val () = PolyML.Compiler.debug := false; *)
 
 end

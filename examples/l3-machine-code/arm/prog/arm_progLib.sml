@@ -4,7 +4,7 @@ struct
 open HolKernel boolLib bossLib
 open stateLib spec_databaseLib arm_progTheory
 
-val () = PolyML.Compiler.debug := true;
+(* val () = PolyML.Compiler.debug := true; *)
 
 structure Parse =
 struct
@@ -867,57 +867,14 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
-(* val () = PolyML.Debug.trace true; *)
-
-fun onExitException (fun_name, loc) e =
-   if fun_name <> "monadsyntax.print_monads" andalso fun_name <> "Rewrite.REWRITES_CONV" then
-      let
-         fun f x = "  --> [Entry] "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunction x))
-            (* ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunctionArg x))
-            ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunctionResult x)) *)
-            ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugLocation x))
-            (* ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugNameSpace x))
-            ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugLocalNameSpace x)) *)
-            ^ "\n";
-
-         val s = PolyML.DebuggerInterface.debugState (Thread.self ());
-
-         val msg =
-            "[Exception]\n  " ^ fun_name ^ " " ^ PolyML.makestring loc ^ " " ^ PolyML.makestring e ^ "\n" ^
-            "[State]\n" ^
-            foldr (op^) "" (List.map f s);
-
-         val () = if String.isSubstring "THEN1" msg then print msg else ();
-
-         (* val () = print msg; *)
-      in
-         ()
-      end
-   else
-      ()
-
-(* val () = PolyML.DebuggerInterface.setOnExitException (SOME onExitException); *)
+(*
 
 fun pp_dbs s =
     let
         fun pp_entry x = "  --> [Entry] "
             ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunction x))
-            (* ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunctionArg x))
-            ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunctionResult x)) *)
             ^ " "
             ^ (PolyML.makestring (PolyML.DebuggerInterface.debugLocation x))
-            (* ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugNameSpace x))
-            ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugLocalNameSpace x)) *)
             ^ "\n";
     in
         "[State]\n" ^ foldr (op^) "" (List.map pp_entry s)
@@ -925,11 +882,13 @@ fun pp_dbs s =
 
 fun show_dbs () = print (pp_dbs (PolyML.DebuggerInterface.debugState (Thread.self ())));
 
-val _ = Tactical.then1_hack := (fn () => (print "here\n"; show_dbs ()));
+*)
+
+val _ = simpLib.hack := (fn name => print ("here: " ^ name ^ "\n"));
+(* val _ = simpLib.hack := (fn () => (print "here\n"; show_dbs ())); *)
 
 (* val _ = arm_spec_hex "e28de008"; *)
 val _ = arm_spec_hex "e12fff1e";
-
 
 (* val () = PolyML.Compiler.debug := false; *)
 
