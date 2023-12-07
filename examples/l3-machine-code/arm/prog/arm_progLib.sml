@@ -867,7 +867,7 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
-val () = PolyML.Debug.trace true;
+(* val () = PolyML.Debug.trace true; *)
 
 fun onExitException (fun_name, loc) e =
    if fun_name <> "monadsyntax.print_monads" andalso fun_name <> "Rewrite.REWRITES_CONV" then
@@ -902,7 +902,30 @@ fun onExitException (fun_name, loc) e =
    else
       ()
 
-val () = PolyML.DebuggerInterface.setOnExitException (SOME onExitException);
+(* val () = PolyML.DebuggerInterface.setOnExitException (SOME onExitException); *)
+
+fun pp_dbs s =
+    let
+        fun pp_entry x = "  --> [Entry] "
+            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunction x))
+            (* ^ " "
+            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunctionArg x))
+            ^ " "
+            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunctionResult x)) *)
+            ^ " "
+            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugLocation x))
+            (* ^ " "
+            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugNameSpace x))
+            ^ " "
+            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugLocalNameSpace x)) *)
+            ^ "\n";
+    in
+        "[State]\n" ^ foldr (op^) "" (List.map pp_entry s)
+    end
+
+fun show_dbs () = print (pp_dbs (PolyML.DebuggerInterface.debugState (Thread.Thread.self ())));
+
+val _ = Tactical.then1_hack := (fn () => (print "here\n"; show_dbs ()));
 
 (* val _ = arm_spec_hex "e28de008"; *)
 val _ = arm_spec_hex "e12fff1e";

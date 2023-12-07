@@ -209,6 +209,8 @@ fun (ltac1 ORELSE_LT ltac2) gl = ltac1 gl handle HOL_ERR _ => ltac2 gl
 
 (* val () = PolyML.Compiler.debug := true; *)
 
+val then1_hack = ref (fn () => ());
+
 fun op THEN1 (tac1: tactic, tac2: tactic) : tactic =
    fn g =>
       let
@@ -220,7 +222,7 @@ fun op THEN1 (tac1: tactic, tac2: tactic) : tactic =
          val (h_gl, h_jf) = tac2 h_g
          val _ =
             if null h_gl then ()
-            else raise ERR "THEN1" "first subgoal not solved by second tactic"
+            else ((!then1_hack) (); raise ERR "THEN1" "first subgoal not solved by second tactic")
       in
          (t_gl, fn thl => jf (h_jf [] :: thl))
       end
