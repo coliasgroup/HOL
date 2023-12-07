@@ -867,7 +867,7 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
-(* val () = PolyML.Debug.trace true; *)
+val () = PolyML.Debug.trace true;
 
 fun onExitException (fun_name, loc) e =
    if fun_name <> "monadsyntax.print_monads" andalso fun_name <> "Rewrite.REWRITES_CONV" then
@@ -894,6 +894,8 @@ fun onExitException (fun_name, loc) e =
             foldr (op^) "" (List.map f s);
 
          val () = if String.isSubstring "THEN1" msg then print msg else ();
+
+         (* val () = print msg; *)
       in
          ()
       end
@@ -902,9 +904,11 @@ fun onExitException (fun_name, loc) e =
 
 val () = PolyML.DebuggerInterface.setOnExitException (SOME onExitException);
 
+(* val _ = arm_spec_hex "e28de008"; *)
 val _ = arm_spec_hex "e12fff1e";
 
-val () = PolyML.Compiler.debug := false;
+
+(* val () = PolyML.Compiler.debug := false; *)
 
 (* ------------------------------------------------------------------------ *)
 

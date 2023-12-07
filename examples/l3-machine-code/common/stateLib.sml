@@ -6,8 +6,6 @@ open updateLib utilsLib
 open stateTheory temporal_stateTheory
 open helperLib progSyntax temporalSyntax temporal_stateSyntax
 
-fdsafdsafsd
-
 val () = PolyML.Compiler.debug := true;
 
 structure Parse = struct
@@ -1890,15 +1888,15 @@ val (thm,t) = hd thm_ts
                prove (t, tac (v, dthm))
             end
             (* handle e as HOL_ERR _ => raise e *)
-            handle e as HOL_ERR _ =>
+            (* handle e as HOL_ERR _ =>
                    (if !spec_debug
                        then (proofManagerLib.set_goal ([], t); thm)
-                    else raise e)
+                    else raise e) *)
       end
 end
 
 (* ------------------------------------------------------------------------ *)
 
-val () = PolyML.Compiler.debug := false;
+(* val () = PolyML.Compiler.debug := false; *)
 
 end
