@@ -4,7 +4,7 @@ struct
 open HolKernel boolLib bossLib
 open stateLib spec_databaseLib arm_progTheory
 
-(* val () = PolyML.Compiler.debug := true; *)
+val () = PolyML.Compiler.debug := true;
 
 structure Parse =
 struct
@@ -869,16 +869,10 @@ end
 
 (* val () = PolyML.Debug.trace true; *)
 
-(*
-
 fun onExitException (fun_name, loc) e =
    if fun_name <> "monadsyntax.print_monads" andalso fun_name <> "Rewrite.REWRITES_CONV" then
       let
-         val () = print ("[Exception]\n  " ^ fun_name ^ " " ^ PolyML.makestring loc ^ " " ^ PolyML.makestring e ^ "\n");
-         val () = print "[State]\n";
-         val s = PolyML.DebuggerInterface.debugState (Thread.self ());
-         (* val () = print (PolyML.makestring s); *)
-         fun f x = print ("  --> [Entry] "
+         fun f x = "  --> [Entry] "
             ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunction x))
             (* ^ " "
             ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunctionArg x))
@@ -890,8 +884,16 @@ fun onExitException (fun_name, loc) e =
             ^ (PolyML.makestring (PolyML.DebuggerInterface.debugNameSpace x))
             ^ " "
             ^ (PolyML.makestring (PolyML.DebuggerInterface.debugLocalNameSpace x)) *)
-            ^ "\n");
-         val _ = List.map f s;
+            ^ "\n";
+
+         val s = PolyML.DebuggerInterface.debugState (Thread.self ());
+
+         val msg =
+            "[Exception]\n  " ^ fun_name ^ " " ^ PolyML.makestring loc ^ " " ^ PolyML.makestring e ^ "\n" ^
+            "[State]\n" ^
+            foldr (op^) "" (List.map f s);
+
+         val () = if String.isSubstring "THEN1" msg then print msg else ();
       in
          ()
       end
@@ -900,9 +902,9 @@ fun onExitException (fun_name, loc) e =
 
 val () = PolyML.DebuggerInterface.setOnExitException (SOME onExitException);
 
-*)
-
 val _ = arm_spec_hex "e12fff1e";
+
+val () = PolyML.Compiler.debug := false;
 
 (* ------------------------------------------------------------------------ *)
 

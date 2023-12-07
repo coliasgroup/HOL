@@ -6,7 +6,9 @@ open updateLib utilsLib
 open stateTheory temporal_stateTheory
 open helperLib progSyntax temporalSyntax temporal_stateSyntax
 
-(* val () = PolyML.Compiler.debug := true; *)
+fdsafdsafsd
+
+val () = PolyML.Compiler.debug := true;
 
 structure Parse = struct
   open Parse
@@ -1896,5 +1898,7 @@ val (thm,t) = hd thm_ts
 end
 
 (* ------------------------------------------------------------------------ *)
+
+val () = PolyML.Compiler.debug := false;
 
 end
