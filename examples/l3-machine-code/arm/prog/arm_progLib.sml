@@ -923,7 +923,7 @@ fun pp_dbs s =
         "[State]\n" ^ foldr (op^) "" (List.map pp_entry s)
     end
 
-fun show_dbs () = print (pp_dbs (PolyML.DebuggerInterface.debugState (Thread.Thread.self ())));
+fun show_dbs () = print (pp_dbs (PolyML.DebuggerInterface.debugState (Thread.self ())));
 
 val _ = Tactical.then1_hack := (fn () => (print "here\n"; show_dbs ()));
 
