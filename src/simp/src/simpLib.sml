@@ -660,14 +660,14 @@ exception FFF;
    end
    fun apply {solver,conv,context,stack,relation} tm = let
      val () = (!hack3) ();
-     val () = (print "XXX\n"; raise FFF);
      val net = (raise context) handle CONVNET net => net;
    in
      tryfind (fn {ci = {conval,name,...},...} =>
                 let
-                  val () = (print "YYY\n"; raise FFF);
+                  val () = print ("XXX " ^ name ^ "\n");
                   val () = (!hack1) name;
                   val r = conval solver stack tm;
+                  val () = print ("YYY " ^ name ^ "\n");
                   val () = (!hack2) name;
                 in
                   r
