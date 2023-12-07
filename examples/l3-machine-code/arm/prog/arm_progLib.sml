@@ -872,8 +872,8 @@ val () = PolyML.Debug.trace true;
 fun onExitException (fun_name, loc) e =
    if fun_name <> "monadsyntax.print_monads" andalso fun_name <> "Rewrite.REWRITES_CONV" then   
       let
-         val () = print ("[Exception] " ^ fun_name ^ " " ^ PolyML.makestring loc ^ " " ^ PolyML.makestring e ^ "\n");
-         val () = print "[State]";
+         val () = print ("[Exception]\n  " ^ fun_name ^ " " ^ PolyML.makestring loc ^ " " ^ PolyML.makestring e ^ "\n");
+         val () = print "[State]\n";
          val s = PolyML.DebuggerInterface.debugState (Thread.self ());
          (* val () = print (PolyML.makestring s); *)
          fun f x = print ("  --> [Entry] "
