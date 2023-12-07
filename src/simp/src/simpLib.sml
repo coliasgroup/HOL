@@ -662,7 +662,7 @@ val hack = ref (fn _ => ());
                   val r = conval solver stack tm;
                   val _ = (!hack) name;
                 in
-                  name)
+                  r)
              (lookup tm net)
    end
    in REDUCER {name=SOME"rewriter_for_ss",
