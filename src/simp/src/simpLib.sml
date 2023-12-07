@@ -657,7 +657,7 @@ val hack3 = ref (fn _ => ());
        (net_add_convs net (List.mapPartial mk_rewr_convdata new_rwts))
    end
    fun apply {solver,conv,context,stack,relation} tm = let
-     val net = (raise context) handle CONVNET net => net
+     val net = (raise context) handle CONVNET net => net;
      val () = (!hack3) ();
    in
      tryfind (fn {ci = {conval,name,...},...} =>
