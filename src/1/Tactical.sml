@@ -207,6 +207,8 @@ fun (ltac1 ORELSE_LT ltac2) gl = ltac1 gl handle HOL_ERR _ => ltac2 gl
  *                  first subgoal of tac1
  *---------------------------------------------------------------------------*)
 
+val () = PolyML.Compiler.debug := true;
+
 fun op THEN1 (tac1: tactic, tac2: tactic) : tactic =
    fn g =>
       let
@@ -232,6 +234,7 @@ fun op>>-(tac1, n) tac2 g =
                    origin_structure = origin_structure}
 fun (f ?? x) = f x
 
+val () = PolyML.Compiler.debug := false;
 
 (*---------------------------------------------------------------------------
  * NTH_GOAL tac n: A list_tactic that applies tac to the nth goal
