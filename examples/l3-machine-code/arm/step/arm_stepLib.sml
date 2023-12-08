@@ -1667,7 +1667,7 @@ in
          thm |> Thm.INST s
              |> REWRITE_RULE [dual_rwt, v2w_13_15_rwts, v2w_ground4, DecodeVFP]
              |> Conv.RIGHT_CONV_RULE EVAL_DATATYPE_CONV
-             |> SIMP_RULE bool_ss
+             |> SIMP_RULE (bool_ss -* ["lift_disj_eq", "lift_imp_disj"])
                   [pairTheory.UNCURRY_DEF, rand_uncurry, ConditionPassed_enc]
       end
 end
@@ -2546,11 +2546,9 @@ end
 
 local
    fun f thm ps = List.map (DecodeARM_rwt thm) (List.map snd ps)
-   val () = simpLib.hack := simpLib.hack_allow false;
    val rwts_14 = f DecodeARM_14 arm_patterns
    val rwts_15 = f DecodeARM_15 arm_patterns15
    val rwts_other = f DecodeARM_other arm_patterns
-   val () = simpLib.hack := simpLib.hack_allow true;
    val undef =
       List.map (DATATYPE_RULE o Thm.INST [state_with_enc ``Encoding_ARM``])
                UndefinedARM_rwt
