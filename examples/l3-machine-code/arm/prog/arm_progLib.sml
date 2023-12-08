@@ -4,8 +4,6 @@ struct
 open HolKernel boolLib bossLib
 open stateLib spec_databaseLib arm_progTheory
 
-(* val () = PolyML.Compiler.debug := true; *)
-
 structure Parse =
 struct
    open Parse
@@ -876,8 +874,6 @@ val _ = simpLib.hack3 := (fn () => (print "ZZZ in hack3\n"; raise NoticeMe));
 
 (* val _ = arm_spec_hex "e28de008"; *)
 val _ = arm_spec_hex "e12fff1e";
-
-(* val () = PolyML.Compiler.debug := false; *)
 
 (* ------------------------------------------------------------------------ *)
 
