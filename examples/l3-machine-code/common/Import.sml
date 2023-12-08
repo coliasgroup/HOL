@@ -1,8 +1,6 @@
 structure Import :> Import =
 struct
 
-val _ = simpLib.hack := (fn name => ());
-
 open HolKernel boolLib bossLib
 open state_transformerTheory bitstringLib stringLib binary_ieeeSyntax
      fp32Syntax fp64Syntax machine_ieeeSyntax intSyntax integer_wordSyntax
