@@ -869,13 +869,25 @@ val () = print "{{{ expact pass }}\n"
 val _ = arm_spec_hex "e28de008";
 val () = print "{{{ pass }}\n"
 
-val () = print "{{{ expect fail }}\n"
+val () = print "{{{ expect pass }}\n"
 val _ = arm_spec_hex "e12fff1e";
+val () = print "{{{ pass }}\n"
+
+val () = print "{{{ expect fail }}\n"
+val _ = arm_spec_hex "e95d7ffc";
 val () = print "{{{ pass }}\n"
 
 exception HackDone;
 
 val () = raise HackDone;
+
+(*
+
+  "e1810f91" (*         strex   r0, r1, [r1]  *) ::
+  "e95d7ffc" (*         ldmdb   sp, {r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, sp, lr}^  *) ::
+  "e95d7fff" (*         ldmdb   sp, {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, sp, lr}^  *) ::
+
+*)
 
 (* ------------------------------------------------------------------------ *)
 
