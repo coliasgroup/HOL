@@ -1,5 +1,3 @@
-val _ = simpLib.hack := (fn name => ());
-
 open HolKernel boolLib bossLib
 open set_sepTheory progTheory temporalTheory stateTheory
 

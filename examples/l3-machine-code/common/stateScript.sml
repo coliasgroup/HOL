@@ -1,5 +1,3 @@
-val _ = simpLib.hack := (fn name => ());
-
 open HolKernel boolLib bossLib
 open set_sepTheory progTheory
 
@@ -471,8 +469,6 @@ val SEP_EQ_STAR = Q.store_thm("SEP_EQ_STAR",
   \\ METIS_TAC []
   )
 
-val _ = simpLib.hack := simpLib.hack_default;
-
 val MAPPED_COMPONENT_INSERT = Q.store_thm("MAPPED_COMPONENT_INSERT",
    `!P n x y single_c map_c.
      (!c d. single_c c d = {set (GENLIST (\i. (x c i, y d i)) n)}) ==>
@@ -496,8 +492,6 @@ val MAPPED_COMPONENT_INSERT = Q.store_thm("MAPPED_COMPONENT_INSERT",
    \\ Cases_on `i' < n` \\ simp []
    \\ metis_tac []
    )
-
-val _ = simpLib.hack := (fn name => ());
 
 val cnv = SIMP_CONV (srw_ss()) [DECIDE ``i < 1n = (i = 0)``]
 

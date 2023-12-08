@@ -1,8 +1,6 @@
 structure stateLib :> stateLib =
 struct
 
-val _ = simpLib.hack := (fn name => ());
-
 open HolKernel boolLib bossLib
 open updateLib utilsLib
 open stateTheory temporal_stateTheory

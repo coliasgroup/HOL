@@ -1,8 +1,6 @@
 structure arm_progLib :> arm_progLib =
 struct
 
-val _ = simpLib.hack := (fn name => ());
-
 open HolKernel boolLib bossLib
 open stateLib spec_databaseLib arm_progTheory
 
