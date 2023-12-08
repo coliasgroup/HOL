@@ -1309,6 +1309,4 @@ in
       end
 end
 
-val () = simpLib.hack := simpLib.hack_allow false;
-
 end
