@@ -2542,11 +2542,10 @@ in
       end
 end
 
-val () = simpLib.hack := simpLib.hack_allow false;
-
 (* -- *)
 
 local
+   val () = simpLib.hack := simpLib.hack_allow false;
    fun f thm ps = List.map (DecodeARM_rwt thm) (List.map snd ps)
    val rwts_14 = f DecodeARM_14 arm_patterns
    val rwts_15 = f DecodeARM_15 arm_patterns15
@@ -2576,6 +2575,7 @@ local
          Conv.RIGHT_CONV_RULE
             (REG_CONV THENC Conv.DEPTH_CONV bitstringLib.v2n_CONV))
    val rwconv = REWRITE_CONV rewrites
+   val () = simpLib.hack := simpLib.hack_allow true;
 in
    fun arm_decode tms =
       let
@@ -2626,8 +2626,6 @@ in
             end
       end
 end
-
-val () = simpLib.hack := simpLib.hack_allow true;
 
 local
    fun uncond c = Lib.mem (Char.toUpper c) [#"E", #"F"]
@@ -2698,8 +2696,6 @@ val BranchTarget_rwts =
    end
 
 (* ---------------------------- *)
-
-(* val () = simpLib.hack := simpLib.hack_allow true; *)
 
 val BranchExchange_rwt =
    EV ([dfn'BranchExchange_def, R_rwt, BXWritePC_rwt, CurrentInstrSet_rwt,
