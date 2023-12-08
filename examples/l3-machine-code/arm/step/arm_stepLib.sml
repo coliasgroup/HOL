@@ -2545,7 +2545,6 @@ end
 (* -- *)
 
 local
-   val () = simpLib.hack := simpLib.hack_allow false;
    fun f thm ps = List.map (DecodeARM_rwt thm) (List.map snd ps)
    val rwts_14 = f DecodeARM_14 arm_patterns
    val rwts_15 = f DecodeARM_15 arm_patterns15
@@ -2556,6 +2555,7 @@ local
    val se = fix_datatype ``^st with Encoding := Encoding_ARM``
    val DecodeARM_tm = mk_arm_const "DecodeARM"
    fun mk_decode_arm t = Term.list_mk_comb (DecodeARM_tm, [t, se])
+   val () = simpLib.hack := simpLib.hack_allow false;
    val rewrites =
       [v2w_13_15_rwts, v2w_ground4, boolTheory.COND_ID,
        bitstringLib.v2n_CONV ``v2n [F;F;F;F;F]``,
