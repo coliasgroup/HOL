@@ -1313,6 +1313,6 @@ in
       end
 end
 
-(* val _ = simpLib.hack := simpLib.hack_default; *)
+val _ = simpLib.hack := simpLib.hack_default;
 
 end
