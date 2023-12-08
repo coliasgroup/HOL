@@ -865,13 +865,13 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
-val () = print "{{{ expact pass }}"
+val () = print "{{{ expact pass }}\n"
 val _ = arm_spec_hex "e28de008";
-val () = print "{{{ pass }}"
+val () = print "{{{ pass }}\n"
 
-val () = print "{{{ expect fail }}"
+val () = print "{{{ expect fail }}\n"
 val _ = arm_spec_hex "e12fff1e";
-val () = print "{{{ fail }}"
+val () = print "{{{ pass }}\n"
 
 exception HackDone;
 
