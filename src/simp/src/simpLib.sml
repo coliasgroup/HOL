@@ -642,6 +642,16 @@ fun remove_ssfrags (ss as SS{history,limit,...}) names =
 
  exception CONVNET of net;
 
+exception HackDisallow;
+
+fun hack_matches name = String.isSubstring "lift_disj_eq" name orelse String.isSubstring "lift_imp_disj" name;
+
+fun hack_allow allow name = if hack_matches name andalso (not allow) then raise HackDisallow else ();
+
+fun hack_default name = hack_allow true;
+
+val hack = ref hack_default
+
  fun rewriter_for_ss (SS{mk_rewrs,travrules,initial_net,...}) = let
    fun addcontext (context,thms) = let
      val net = (raise context) handle CONVNET net => net
@@ -655,7 +665,15 @@ fun remove_ssfrags (ss as SS{history,limit,...}) names =
    fun apply {solver,conv,context,stack,relation} tm = let
      val net = (raise context) handle CONVNET net => net
    in
-     tryfind (fn {ci = {conval,...},...} => conval solver stack tm)
+     tryfind (fn {ci = {conval,name,...},...} =>
+                let
+                  val r = conval solver stack tm;
+                  val () = if hack_matches name then print ("XXX " ^ name ^ "\n") else ();
+                  val () = (!hack) name;
+                  val () = if hack_matches name then print ("ZZZ " ^ name ^ "\n") else ();
+                in
+                  r
+                end)
              (lookup tm net)
    end
    in REDUCER {name=SOME"rewriter_for_ss",
