@@ -2627,6 +2627,8 @@ in
       end
 end
 
+val () = simpLib.hack := simpLib.hack_allow true;
+
 local
    fun uncond c = Lib.mem (Char.toUpper c) [#"E", #"F"]
 in
@@ -2697,7 +2699,7 @@ val BranchTarget_rwts =
 
 (* ---------------------------- *)
 
-val () = simpLib.hack := simpLib.hack_allow true;
+(* val () = simpLib.hack := simpLib.hack_allow true; *)
 
 val BranchExchange_rwt =
    EV ([dfn'BranchExchange_def, R_rwt, BXWritePC_rwt, CurrentInstrSet_rwt,
