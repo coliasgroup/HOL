@@ -884,12 +884,12 @@ fun show_dbs () = print (pp_dbs (PolyML.DebuggerInterface.debugState (Thread.sel
 
 *)
 
-exception EEE;
+exception ForbiddenSimp;
+exception NoticeMe;
 
-val _ = simpLib.hack1 := (fn name => (print ("here1: " ^ name ^ "\n"); raise EEE));
-val _ = simpLib.hack2 := (fn name => (print ("here2: " ^ name ^ "\n"); raise EEE));
-val _ = simpLib.hack3 := (fn () => (print "here3"; raise EEE));
-(* val _ = simpLib.hack := (fn () => (print "here\n"; show_dbs ())); *)
+val _ = simpLib.hack1 := (fn name => (print ("ZZZ in hack1: " ^ name ^ "\n"); raise NoticeMe));
+val _ = simpLib.hack2 := (fn name => (print ("ZZZ in hack2: " ^ name ^ "\n"); raise NoticeMe));
+val _ = simpLib.hack3 := (fn () => (print "ZZZ in hack3\n"; raise NoticeMe));
 
 (* val _ = arm_spec_hex "e28de008"; *)
 val _ = arm_spec_hex "e12fff1e";
