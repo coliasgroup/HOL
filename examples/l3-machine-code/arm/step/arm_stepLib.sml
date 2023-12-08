@@ -5,6 +5,8 @@
 structure arm_stepLib :> arm_stepLib =
 struct
 
+val () = simpLib.hack := simpLib.hack_allow false;
+
 open HolKernel boolLib bossLib
 
 open armTheory arm_stepTheory arm_configLib
@@ -4360,5 +4362,6 @@ ev "RFEDB (wb)";
 
 *)
 
+val () = simpLib.hack := simpLib.hack_allow true;
 
 end

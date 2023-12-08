@@ -1,6 +1,8 @@
 structure spec_databaseLib :> spec_databaseLib =
 struct
 
+val () = simpLib.hack := simpLib.hack_allow false;
+
 open HolKernel boolLib bossLib
 
 val ERR = Feedback.mk_HOL_ERR "spec_databaseLib"
@@ -146,5 +148,7 @@ fun mk_spec_database basic_opt (default_opt: ''opt) proj_opt closeness
    end
 
 (* ------------------------------------------------------------------------ *)
+
+val () = simpLib.hack := simpLib.hack_allow true;
 
 end
