@@ -867,23 +867,6 @@ in
       (armAssemblerLib.arm_code: string quotation -> string list)
 end
 
-(*
-
-fun pp_dbs s =
-    let
-        fun pp_entry x = "  --> [Entry] "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugFunction x))
-            ^ " "
-            ^ (PolyML.makestring (PolyML.DebuggerInterface.debugLocation x))
-            ^ "\n";
-    in
-        "[State]\n" ^ foldr (op^) "" (List.map pp_entry s)
-    end
-
-fun show_dbs () = print (pp_dbs (PolyML.DebuggerInterface.debugState (Thread.self ())));
-
-*)
-
 exception ForbiddenSimp;
 exception NoticeMe;
 
