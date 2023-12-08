@@ -1,7 +1,4 @@
 open arm_progLib;
-open arm_saved_specsTheory;
-
-val () = arm_progLib.loadSpecs arm_saved_specsTheory.saved_specs;
 
 use "arm_tests.sml";
 
