@@ -489,10 +489,10 @@ Proof
                    pred_setTheory.DISJOINT_DEF, pred_setTheory.EXTENSION]
    \\ rw [boolTheory.PULL_EXISTS, combinTheory.APPLY_UPDATE_THM,
           listTheory.MEM_GENLIST]
-   (* >- metis_tac []
+   >- metis_tac []
    \\ Cases_on `x'`     \\ simp [] (* shouldn't rely on name here *)
    \\ Cases_on `i < n`  \\ simp []
-   \\ Cases_on `i' < n` \\ simp [] *)
+   \\ Cases_on `i' < n` \\ simp []
    \\ metis_tac []
 QED
 
