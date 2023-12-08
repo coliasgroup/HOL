@@ -1,8 +1,6 @@
 structure stateLib :> stateLib =
 struct
 
-val () = simpLib.hack := simpLib.hack_allow false;
-
 open HolKernel boolLib bossLib
 open updateLib utilsLib
 open stateTheory temporal_stateTheory
@@ -1894,7 +1892,5 @@ val (thm,t) = hd thm_ts
 end
 
 (* ------------------------------------------------------------------------ *)
-
-val () = simpLib.hack := simpLib.hack_allow true;
 
 end
