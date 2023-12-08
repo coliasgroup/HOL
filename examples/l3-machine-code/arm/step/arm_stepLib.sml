@@ -2564,6 +2564,7 @@ local
    val COND_RULE =
       Conv.RIGHT_CONV_RULE (REG_CONV THENC REWRITE_CONV iConditionPassed_rwts) o
       utilsLib.ALL_HYP_CONV_RULE REG_CONV
+   val () = simpLib.hack := simpLib.hack_allow true;
    val raise_tm = mk_arm_const "raise'exception"
    val avoid =
       List.filter
@@ -2575,7 +2576,6 @@ local
          Conv.RIGHT_CONV_RULE
             (REG_CONV THENC Conv.DEPTH_CONV bitstringLib.v2n_CONV))
    val rwconv = REWRITE_CONV rewrites
-   val () = simpLib.hack := simpLib.hack_allow true;
 in
    fun arm_decode tms =
       let
