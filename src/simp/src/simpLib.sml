@@ -648,7 +648,7 @@ fun hack_matches name = String.isSubstring "lift_disj_eq" name orelse String.isS
 
 fun hack_allow allow name = if hack_matches name andalso (not allow) then raise HackDisallow else ();
 
-fun hack_default name = hack_allow true;
+val hack_default = hack_allow true;
 
 val hack = ref hack_default
 
