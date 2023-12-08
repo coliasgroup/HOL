@@ -665,6 +665,7 @@ val hack3 = ref (fn _ => ());
                   val () = (!hack1) name;
                   val r = conval solver stack tm;
                   val () = (!hack2) name;
+                  val () = if String.isSubstring "lift_disj_" name then print ("YYY " ^ name ^ "\n") else ();
                 in
                   r
                 end)
