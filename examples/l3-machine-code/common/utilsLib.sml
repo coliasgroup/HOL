@@ -1,7 +1,7 @@
 structure utilsLib :> utilsLib =
 struct
 
-val () = simpLib.hack := simpLib.hack_allow false;
+(* val () = simpLib.hack := simpLib.hack_allow false; *)
 
 open HolKernel boolLib bossLib
 open state_transformerTheory
