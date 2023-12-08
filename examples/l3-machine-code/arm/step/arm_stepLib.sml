@@ -2863,6 +2863,8 @@ val mov_mvn = dp 13 @ dp 15
 val al = List.concat (List.tabulate (8, fn i => dp i) @ [dp 12, dp 14])
 val tc = List.concat (List.tabulate (4, fn i => dp (8 + i)))
 
+val () = simpLib.hack := simpLib.hack_allow true;
+
 (* ---------------------------- *)
 
 val () = setEvConv utilsLib.WGROUND_CONV
@@ -4362,6 +4364,5 @@ ev "RFEDB (wb)";
 
 *)
 
-val () = simpLib.hack := simpLib.hack_allow true;
 
 end
