@@ -3,6 +3,8 @@ open set_sepTheory progTheory
 
 val _ = new_theory "state"
 
+val _ = simpLib.hack2 := (fn name => if String.isSubstring "lift_disj_" name then print ("XXX " ^ name ^ "\n") else (); raise Fail "foo");
+
 infix \\
 val op \\ = op THEN;
 

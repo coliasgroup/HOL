@@ -10,6 +10,8 @@ open state_transformerTheory updateTheory alignmentTheory armTheory
 
 val _ = new_theory "arm_step"
 
+val _ = simpLib.hack2 := (fn name => if String.isSubstring "lift_disj_" name then print ("XXX " ^ name ^ "\n") else (); raise Fail "foo");
+
 (* ------------------------------------------------------------------------ *)
 
 val _ = List.app (fn f => f ())
