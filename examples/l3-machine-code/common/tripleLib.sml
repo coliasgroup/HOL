@@ -1,6 +1,8 @@
 structure tripleLib :> tripleLib =
 struct
 
+val _ = simpLib.hack := (fn name => ());
+
 open HolKernel Parse boolLib bossLib
 open progTheory tripleTheory helperLib
 

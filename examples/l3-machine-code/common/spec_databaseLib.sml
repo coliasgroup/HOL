@@ -1,6 +1,8 @@
 structure spec_databaseLib :> spec_databaseLib =
 struct
 
+val _ = simpLib.hack := (fn name => ());
+
 open HolKernel boolLib bossLib
 
 val ERR = Feedback.mk_HOL_ERR "spec_databaseLib"

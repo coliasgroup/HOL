@@ -1,6 +1,8 @@
 structure temporal_stateSyntax :> temporal_stateSyntax =
 struct
 
+val _ = simpLib.hack := (fn name => ());
+
 open Abbrev HolKernel progSyntax temporal_stateTheory
 
 (* ----------------------------------------------------------------------- *)

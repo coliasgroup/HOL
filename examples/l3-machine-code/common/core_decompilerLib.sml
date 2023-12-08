@@ -1,6 +1,8 @@
 structure core_decompilerLib :> core_decompilerLib =
 struct
 
+val _ = simpLib.hack := (fn name => ());
+
 open HolKernel Parse boolLib bossLib
 open helperLib tripleTheory tripleSyntax
 
