@@ -1,8 +1,6 @@
 structure utilsLib :> utilsLib =
 struct
 
-val _ = simpLib.hack := (fn name => ());
-
 open HolKernel boolLib bossLib
 open state_transformerTheory
 open wordsLib integer_wordLib bitstringLib

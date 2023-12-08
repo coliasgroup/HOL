@@ -1,8 +1,6 @@
 structure tripleSyntax :> tripleSyntax =
 struct
 
-val _ = simpLib.hack := (fn name => ());
-
 open Abbrev HolKernel
 open tripleTheory
 
