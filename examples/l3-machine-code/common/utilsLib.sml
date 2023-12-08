@@ -1,6 +1,8 @@
 structure utilsLib :> utilsLib =
 struct
 
+val _ = simpLib.hack := (fn name => ());
+
 open HolKernel boolLib bossLib
 open state_transformerTheory
 open wordsLib integer_wordLib bitstringLib
@@ -17,7 +19,7 @@ open Parse
 
 (* ------------------------------------------------------------------------- *)
 
-val _ = simpLib.hack := (fn name => ());
+(* val _ = simpLib.hack := (fn name => ()); *)
 
 fun cache size cmp f =
    let
@@ -1311,6 +1313,6 @@ in
       end
 end
 
-val _ = simpLib.hack := simpLib.hack_default;
+(* val _ = simpLib.hack := simpLib.hack_default; *)
 
 end
