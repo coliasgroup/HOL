@@ -1,8 +1,6 @@
 structure utilsLib :> utilsLib =
 struct
 
-(* val () = simpLib.hack := simpLib.hack_allow false; *)
-
 open HolKernel boolLib bossLib
 open state_transformerTheory
 open wordsLib integer_wordLib bitstringLib
@@ -1310,5 +1308,7 @@ in
             end
       end
 end
+
+val () = simpLib.hack := simpLib.hack_allow false;
 
 end
