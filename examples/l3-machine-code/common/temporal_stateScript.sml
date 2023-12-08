@@ -3,7 +3,7 @@ open set_sepTheory progTheory temporalTheory stateTheory
 
 val _ = new_theory "temporal_state"
 
-val _ = simpLib.hack2 := (fn name => (if String.isSubstring "lift_disj_" name then (print ("XXX " ^ name ^ "\n"; raise Fail "foo")) else ()));
+val _ = simpLib.hack2 := (fn name => (if String.isSubstring "lift_disj_eq" name orelse String.isSubstring "lift_imp_disj" name then (print ("XXX " ^ name ^ "\n"; raise Fail "foo")) else ()));
 
 infix \\
 val op \\ = op THEN;

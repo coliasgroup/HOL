@@ -14,7 +14,7 @@ open Parse
 
 val ERR = Feedback.mk_HOL_ERR "arm_progLib"
 
-val _ = simpLib.hack2 := (fn name => (if String.isSubstring "lift_disj_" name then (print ("XXX " ^ name ^ "\n"; raise Fail "foo")) else ()));
+val _ = simpLib.hack2 := (fn name => (if String.isSubstring "lift_disj_eq" name orelse String.isSubstring "lift_imp_disj" name then (print ("XXX " ^ name ^ "\n"; raise Fail "foo")) else ()));
 
 (* ------------------------------------------------------------------------ *)
 
