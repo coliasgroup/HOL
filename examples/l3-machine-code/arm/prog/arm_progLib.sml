@@ -1,8 +1,6 @@
 structure arm_progLib :> arm_progLib =
 struct
 
-val () = simpLib.hack := simpLib.hack_allow false;
-
 open HolKernel boolLib bossLib
 open stateLib spec_databaseLib arm_progTheory
 

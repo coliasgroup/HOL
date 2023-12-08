@@ -6,6 +6,8 @@
 structure arm_configLib :> arm_configLib =
 struct
 
+val () = simpLib.hack := simpLib.hack_allow false;
+
 open HolKernel boolLib bossLib
 open armTheory utilsLib
 
@@ -145,5 +147,7 @@ in
 end
 
 (* ----------------------------------------------------------------------- *)
+
+val () = simpLib.hack := simpLib.hack_allow true;
 
 end
