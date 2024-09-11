@@ -1,0 +1,9 @@
+
+test.o:     file format elf32-littlearm
+
+
+Disassembly of section .boot:
+
+e0017ef4 <foo>:
+e0017ef4:	e7cb5492 	bfi	r5, r2, #9, #3
+e0017ef8:	e12fff1e 	bx lr
