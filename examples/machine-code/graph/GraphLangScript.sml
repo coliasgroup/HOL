@@ -2389,33 +2389,6 @@ val fixwidth_w2v = prove(
   ``fixwidth (dimindex (:'a)) (w2v (w:'a word)) = w2v w``,
   EVAL_TAC \\ fs []);
 
-val bit_field_insert_thms_x = Theory.save_thm("bit_field_insert_thms_x",
-   utilsLib.map_conv blastLib.BBLAST_PROVE
-      [
-       ``!a b. bit_field_insert 1 0 (a: word32) (b: word32) =
-               (31 >< 2) b @@ (1 >< 0) a``,
-       ``!a b. bit_field_insert 2 0 (a: word32) (b: word32) =
-               (31 >< 3) b @@ (2 >< 0) a``,
-       ``!a b. bit_field_insert 3 0 (a: word32) (b: word32) =
-               (31 >< 4) b @@ (3 >< 0) a``,
-       ``!a b. bit_field_insert 4 0 (a: word32) (b: word32) =
-               (31 >< 5) b @@ (4 >< 0) a``,
-       ``!a b. bit_field_insert 5 0 (a: word32) (b: word32) =
-               (31 >< 6) b @@ (5 >< 0) a``,
-       ``!a b. bit_field_insert 6 0 (a: word32) (b: word32) =
-               (31 >< 7) b @@ (6 >< 0) a``,
-       ``!a b. bit_field_insert 7 0 (a: word32) (b: word32) =
-               (31 >< 8) b @@ (7 >< 0) a``,
-       ``!a b. bit_field_insert 8 0 (a: word32) (b: word32) =
-               (31 >< 9) b @@ (8 >< 0) a``
-      ]
-   )
-
-val bit_field_insert_h_l = store_thm("bit_field_insert_h_l",
-  ``((h = 19) /\ (l = 9)) ==> (bit_field_insert h l (v:word32) (w:word32) =
-     ((v << (32 - ((h + 1) - l)) >>> (32 - (h + 1))) || (w << (32 - l)) >>> (32 - l) || (w >>> (h + 1)) << (h + 1)):word32)``,
-  blastLib.BBLAST_TAC);
-
 val bit_field_insert_11_9 = store_thm("bit_field_insert_11_9",
   ``(bit_field_insert 11 9 (v:word32) (w:word32) =
      ((v << (32 - ((11 + 1) - 9)) >>> (32 - (11 + 1))) || (w << (32 - 9)) >>> (32 - 9) || (w >>> (11 + 1)) << (11 + 1)):word32)``,
@@ -2448,7 +2421,7 @@ val word_cancel_extra = store_thm("word_cancel_extra",
   fs [WORD_LEFT_ADD_DISTRIB]);
 
 val export_init_rw = save_thm("export_init_rw",
-  CONJ (CONJ (CONJ (CONJ bit_field_insert_thms_x bit_field_insert_h_l) bit_field_insert_11_9) bit_field_insert_31_16) v2w_field_insert_31_16);
+  CONJ (CONJ bit_field_insert_11_9 bit_field_insert_31_16) v2w_field_insert_31_16);
 
 val m0_preprocessing = save_thm("m0_preprocessing",
   CONJ (EVAL ``RName_LR = RName_PC``) (EVAL ``RName_PC = RName_LR``));
