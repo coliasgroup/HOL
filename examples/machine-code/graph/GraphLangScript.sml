@@ -2420,8 +2420,31 @@ val word_cancel_extra = store_thm("word_cancel_extra",
     (w + x − (w - y) = x + y:'a word)``,
   fs [WORD_LEFT_ADD_DISTRIB]);
 
+val tm_x =
+  ``(bit_field_insert h l (v:word32) (w:word32) =
+     ((v << (32 - ((h + 1) - l)) >>> (32 - (h + 1))) || (w << (32 - l)) >>> (32 - l) || (w >>> (h + 1)) << (h + 1)):word32)``;
+
+fun bit_field_insert_h_l h l = store_thm("bit_field_insert_" ^ Int.toString h ^ "_" ^ Int.toString l,
+  (tm_x
+    |> Term.subst [``h:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt h)])
+    |> Term.subst [``l:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt l)],
+  blastLib.BBLAST_TAC);
+
+val bit_field_inserts = [
+  bit_field_insert_h_l 1 0,
+  bit_field_insert_h_l 2 0,
+  bit_field_insert_h_l 3 0,
+  bit_field_insert_h_l 4 0,
+  bit_field_insert_h_l 5 0,
+  bit_field_insert_h_l 6 0,
+  bit_field_insert_h_l 7 0,
+  bit_field_insert_h_l 8 0,
+  bit_field_insert_h_l 9 0,
+  bit_field_insert_h_l 10 0
+  ];
+
 val export_init_rw = save_thm("export_init_rw",
-  CONJ (CONJ bit_field_insert_11_9 bit_field_insert_31_16) v2w_field_insert_31_16);
+  CONJ (CONJ (CONJ (LIST_CONJ bit_field_inserts) bit_field_insert_11_9) bit_field_insert_31_16) v2w_field_insert_31_16);
 
 val m0_preprocessing = save_thm("m0_preprocessing",
   CONJ (EVAL ``RName_LR = RName_PC``) (EVAL ``RName_PC = RName_LR``));
