@@ -2448,7 +2448,7 @@ val word_cancel_extra = store_thm("word_cancel_extra",
   fs [WORD_LEFT_ADD_DISTRIB]);
 
 val export_init_rw = save_thm("export_init_rw",
-  CONJ (CONJ bit_field_insert_11_9 bit_field_insert_31_16) v2w_field_insert_31_16);
+  CONJ (CONJ (CONJ (CONJ bit_field_insert_thms_x bit_field_insert_h_l) bit_field_insert_11_9) bit_field_insert_31_16) v2w_field_insert_31_16);
 
 val m0_preprocessing = save_thm("m0_preprocessing",
   CONJ (EVAL ``RName_LR = RName_PC``) (EVAL ``RName_PC = RName_LR``));
