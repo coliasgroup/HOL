@@ -2460,6 +2460,10 @@ val bit_field_inserts = [
   bit_field_insert_h_0 17,
   bit_field_insert_h_0 18,
   bit_field_insert_h_0 19,
+  bit_field_insert_h_l 1 1,
+  bit_field_insert_h_l 3 3,
+  bit_field_insert_h_l 5 5,
+  bit_field_insert_h_l 29 12,
   bit_field_insert_h_l 29 19,
   bit_field_insert_h_l 29 20
   ];
