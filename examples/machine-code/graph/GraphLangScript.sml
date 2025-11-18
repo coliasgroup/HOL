@@ -2398,7 +2398,7 @@ val bit_field_insert_thms_x = Theory.save_thm("bit_field_insert_thms_x",
                (31 >< 3) b @@ (2 >< 0) a``,
        ``!a b. bit_field_insert 3 0 (a: word32) (b: word32) =
                (31 >< 4) b @@ (3 >< 0) a``,
-       ``!a b. bit_field_insert 4 0 (a: wod32) (b: word32) =
+       ``!a b. bit_field_insert 4 0 (a: word32) (b: word32) =
                (31 >< 5) b @@ (4 >< 0) a``,
        ``!a b. bit_field_insert 5 0 (a: word32) (b: word32) =
                (31 >< 6) b @@ (5 >< 0) a``,
@@ -2407,9 +2407,14 @@ val bit_field_insert_thms_x = Theory.save_thm("bit_field_insert_thms_x",
        ``!a b. bit_field_insert 7 0 (a: word32) (b: word32) =
                (31 >< 8) b @@ (7 >< 0) a``,
        ``!a b. bit_field_insert 8 0 (a: word32) (b: word32) =
-               (31 >< 9) b @@ (8 >< 0) a``,
+               (31 >< 9) b @@ (8 >< 0) a``
       ]
    )
+
+val bit_field_insert_h_l = store_thm("bit_field_insert_h_l",
+  ``((h = 19) /\ (l = 9)) ==> (bit_field_insert h l (v:word32) (w:word32) =
+     ((v << (32 - ((h + 1) - l)) >>> (32 - (h + 1))) || (w << (32 - l)) >>> (32 - l) || (w >>> (h + 1)) << (h + 1)):word32)``,
+  blastLib.BBLAST_TAC);
 
 val bit_field_insert_11_9 = store_thm("bit_field_insert_11_9",
   ``(bit_field_insert 11 9 (v:word32) (w:word32) =
