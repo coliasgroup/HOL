@@ -2461,7 +2461,7 @@ val bit_field_inserts = [
   bit_field_insert_h_0 18,
   bit_field_insert_h_0 19,
   bit_field_insert_h_l 29 19,
-  bit_field_insert_h_l 29 20,
+  bit_field_insert_h_l 29 20
   ];
 
 val export_init_rw = save_thm("export_init_rw",
