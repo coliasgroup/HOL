@@ -14,9 +14,30 @@ open arm_decompLib m0_decompLib;
 echo 'load "wip";' | ../../../bin/hol
 *)
 
+(*
 val bit_field_insert_h_l = store_thm("bit_field_insert_h_l",
   ``((h = 19) /\ (l = 9)) ==> (bit_field_insert h l (v:word32) (w:word32) =
      ((v << (32 - ((h + 1) - l)) >>> (32 - (h + 1))) || (w << (32 - l)) >>> (32 - l) || (w >>> (h + 1)) << (h + 1)):word32)``,
   blastLib.BBLAST_TAC);
+*)
+
+(*
+fun bit_field_insert_h_l h l = store_thm("bit_field_insert_" ^ Int.toString h ^ "_" ^ Int.toString l,
+  ``((h = (^(wordsSyntax.mk_wordii (h, 32)):num)) /\ (l = (^(wordsSyntax.mk_wordii (l, 32))):num)) ==> (bit_field_insert h l (v:word32) (w:word32) =
+     ((v << (32 - ((h + 1) - l)) >>> (32 - (h + 1))) || (w << (32 - l)) >>> (32 - l) || (w >>> (h + 1)) << (h + 1)):word32)``,
+  blastLib.BBLAST_TAC);
+*)
+
+val tm_x =
+  ``(bit_field_insert h l (v:word32) (w:word32) =
+     ((v << (32 - ((h + 1) - l)) >>> (32 - (h + 1))) || (w << (32 - l)) >>> (32 - l) || (w >>> (h + 1)) << (h + 1)):word32)``;
+
+fun bit_field_insert_h_l h l = store_thm("bit_field_insert_" ^ Int.toString h ^ "_" ^ Int.toString l,
+  (tm_x
+    |> Term.subst [``h:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt h)])
+    |> Term.subst [``l:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt l)],
+  blastLib.BBLAST_TAC);
+
+val bit_field_insert_19_9 = bit_field_insert_h_l 19 9;
 
 val _ = export_theory();
