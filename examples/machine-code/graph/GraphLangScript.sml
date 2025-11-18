@@ -2430,17 +2430,26 @@ fun bit_field_insert_h_l h l = store_thm("bit_field_insert_" ^ Int.toString h ^ 
     |> Term.subst [``l:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt l)],
   blastLib.BBLAST_TAC);
 
+val tm_y =
+  ``(bit_field_insert h 0 (v:word32) (w:word32) =
+     ((v << (32 - (h + 1)) >>> (32 - (h + 1))) || (w >>> (h + 1)) << (h + 1)):word32)``;
+
+fun bit_field_insert_h_0 h = store_thm("bit_field_insert_" ^ Int.toString h ^ "_0",
+  tm_y
+    |> Term.subst [``h:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt h)],
+  blastLib.BBLAST_TAC);
+
 val bit_field_inserts = [
-  bit_field_insert_h_l 1 0,
-  bit_field_insert_h_l 2 0,
-  bit_field_insert_h_l 3 0,
-  bit_field_insert_h_l 4 0,
-  bit_field_insert_h_l 5 0,
-  bit_field_insert_h_l 6 0,
-  bit_field_insert_h_l 7 0,
-  bit_field_insert_h_l 8 0,
-  bit_field_insert_h_l 9 0,
-  bit_field_insert_h_l 10 0
+  bit_field_insert_h_0 1,
+  bit_field_insert_h_0 2,
+  bit_field_insert_h_0 3,
+  bit_field_insert_h_0 4,
+  bit_field_insert_h_0 5,
+  bit_field_insert_h_0 6,
+  bit_field_insert_h_0 7,
+  bit_field_insert_h_0 8,
+  bit_field_insert_h_0 9,
+  bit_field_insert_h_0 10
   ];
 
 val export_init_rw = save_thm("export_init_rw",
