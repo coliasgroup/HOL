@@ -2440,6 +2440,7 @@ fun bit_field_insert_h_0 h = store_thm("bit_field_insert_" ^ Int.toString h ^ "_
   blastLib.BBLAST_TAC);
 
 val bit_field_inserts = [
+  bit_field_insert_h_0 0,
   bit_field_insert_h_0 1,
   bit_field_insert_h_0 2,
   bit_field_insert_h_0 3,
@@ -2449,7 +2450,18 @@ val bit_field_inserts = [
   bit_field_insert_h_0 7,
   bit_field_insert_h_0 8,
   bit_field_insert_h_0 9,
-  bit_field_insert_h_0 10
+  bit_field_insert_h_0 10,
+  bit_field_insert_h_0 11,
+  bit_field_insert_h_0 12,
+  bit_field_insert_h_0 13,
+  bit_field_insert_h_0 14,
+  bit_field_insert_h_0 15,
+  bit_field_insert_h_0 16,
+  bit_field_insert_h_0 17,
+  bit_field_insert_h_0 18,
+  bit_field_insert_h_0 19,
+  bit_field_insert_h_l 29 19,
+  bit_field_insert_h_l 29 20,
   ];
 
 val export_init_rw = save_thm("export_init_rw",
