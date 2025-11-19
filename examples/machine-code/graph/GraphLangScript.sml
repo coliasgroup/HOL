@@ -2107,11 +2107,22 @@ val blast_append_0_lemma = prove(
     (((w2w:word32 -> 30 word) w @@ (0w:word2)) : word32 = w << 2)``,
   blastLib.BBLAST_TAC);
 
+val foo = store_thm("foo",
+  ``w2n ((w2w ((w2w (((x:word64) && (63w:word64)):word64)):word6)):word64) = w2n (x && 63w)``,
+  rw [w2n_w2w] \\ blastLib.BBLAST_TAC);
+
+val bar = store_thm("bar",
+  ``y:word64 >> w2n ((w2w ((w2w (((x:word64) && (63w:word64)):word64)):word6)):word64)
+      = SignedShiftRight y (x && 63w)``,
+  rw [foo]
+  \\ fs [SignedShiftRight_def,GSYM w2w_w2w_and_255, w2w_def,w2n_n2w]
+  \\ blastLib.BBLAST_TAC);
+
 val graph_format_preprocessing = save_thm("graph_format_preprocessing",
   LIST_CONJ [MemAcc8_def, MemAcc32_def, MemAcc64_def,
              ShiftLeft_def, ShiftRight_def,
              MemUpdate8_def, MemUpdate32_def, MemUpdate64_def] |> GSYM
-  |> CONJ rw1 |> CONJ rw3 |> CONJ rw64 |> CONJ rw16 |> CONJ rw8 |> CONJ rw4
+  |> CONJ rw1 |> CONJ rw3 |> CONJ rw64 |> CONJ rw16 |> CONJ rw8 |> CONJ rw4 |> CONJ bar
   |> CONJ w2w_carry |> CONJ w2w_carry_alt
   |> CONJ carry_out_eq
   |> CONJ READ32_expand64
@@ -2469,19 +2480,8 @@ val bit_field_inserts = [
   bit_field_insert_h_l 29 20
   ];
 
-val foo = store_thm("foo",
-  ``w2n ((w2w ((w2w (((x:word64) && (63w:word64)):word64)):word6)):word64) = w2n (x && 63w)``,
-  rw [w2n_w2w] \\ blastLib.BBLAST_TAC);
-
-val bar = store_thm("bar",
-  ``y:word64 >> w2n ((w2w ((w2w (((x:word64) && (63w:word64)):word64)):word6)):word64)
-      = SignedShiftRight y (x && 63w)``,
-  rw [foo]
-  \\ fs [SignedShiftRight_def,GSYM w2w_w2w_and_255, w2w_def,w2n_n2w]
-  \\ blastLib.BBLAST_TAC);
-
 val export_init_rw = save_thm("export_init_rw",
-  CONJ (CONJ (CONJ (CONJ (CONJ w2n_w2w foo) (LIST_CONJ bit_field_inserts)) bit_field_insert_11_9) bit_field_insert_31_16) v2w_field_insert_31_16);
+  CONJ (CONJ (CONJ (CONJ bar (LIST_CONJ bit_field_inserts)) bit_field_insert_11_9) bit_field_insert_31_16) v2w_field_insert_31_16);
 
 val m0_preprocessing = save_thm("m0_preprocessing",
   CONJ (EVAL ``RName_LR = RName_PC``) (EVAL ``RName_PC = RName_LR``));
