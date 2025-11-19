@@ -2470,11 +2470,11 @@ val bit_field_inserts = [
   ];
 
 val foo = store_thm("foo",
-  ``w2n ((w2w ((w2w ((x && 63w):word64)):word6)):word64) = w2n (x && 63w)``,
+  ``w2n ((w2w ((w2w ((x && 63w):word64)):word64)):word64) = w2n (x && 63w)``,
   rw [w2n_w2w] \\ blastLib.BBLAST_TAC);
 
 val export_init_rw = save_thm("export_init_rw",
-  CONJ (CONJ (CONJ (CONJ foo (LIST_CONJ bit_field_inserts)) bit_field_insert_11_9) bit_field_insert_31_16) v2w_field_insert_31_16);
+  CONJ (CONJ (CONJ (CONJ (CONJ w2n_w2w foo) (LIST_CONJ bit_field_inserts)) bit_field_insert_11_9) bit_field_insert_31_16) v2w_field_insert_31_16);
 
 val m0_preprocessing = save_thm("m0_preprocessing",
   CONJ (EVAL ``RName_LR = RName_PC``) (EVAL ``RName_PC = RName_LR``));
