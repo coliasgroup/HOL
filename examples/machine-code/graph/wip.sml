@@ -14,6 +14,10 @@ open arm_decompLib m0_decompLib;
 echo 'load "wip";' | ../../../bin/hol
 *)
 
+val foo = store_thm("foo",
+  ``w2n ((w2w ((w2w ((x && 63w):word64)):word6)):word64) = w2n (x && 63w)``,
+  rw [w2n_w2w] \\ blastLib.BBLAST_TAC);
+
 (*
 val bit_field_insert_h_l = store_thm("bit_field_insert_h_l",
   ``((h = 19) /\ (l = 9)) ==> (bit_field_insert h l (v:word32) (w:word32) =
@@ -26,7 +30,6 @@ fun bit_field_insert_h_l h l = store_thm("bit_field_insert_" ^ Int.toString h ^ 
   ``((h = (^(wordsSyntax.mk_wordii (h, 32)):num)) /\ (l = (^(wordsSyntax.mk_wordii (l, 32))):num)) ==> (bit_field_insert h l (v:word32) (w:word32) =
      ((v << (32 - ((h + 1) - l)) >>> (32 - (h + 1))) || (w << (32 - l)) >>> (32 - l) || (w >>> (h + 1)) << (h + 1)):word32)``,
   blastLib.BBLAST_TAC);
-*)
 
 val tm_x =
   ``(bit_field_insert h l (v:word32) (w:word32) =
@@ -69,5 +72,6 @@ val bit_field_insert_11_9 = store_thm("bit_field_insert_11_9",
 
 val export_init_rw = save_thm("export_init_rw",
   CONJ (LIST_CONJ bit_field_inserts) bit_field_insert_11_9);
+*)
 
 val _ = export_theory();
