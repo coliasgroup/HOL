@@ -110,7 +110,7 @@ fun RAND_CONV conv tm =
 fun RATOR_CONV conv tm =
    let
       val {Rator, Rand} =
-         dest_comb tm handle HOL_ERR _ => let val _ = PolyML.stackTrace () in raise ERR "RATOR_CONV" "not a comb" end
+         dest_comb tm handle HOL_ERR _ => raise ERR "RATOR_CONV" "not a comb"
       val newrator =
          conv Rator
          handle HOL_ERR {origin_function, origin_structure, message} =>
