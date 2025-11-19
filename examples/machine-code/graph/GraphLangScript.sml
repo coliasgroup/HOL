@@ -2470,8 +2470,15 @@ val bit_field_inserts = [
   ];
 
 val foo = store_thm("foo",
-  ``w2n ((w2w ((w2w ((x && 63w):word64)):word64)):word64) = w2n (x && 63w)``,
+  ``w2n ((w2w ((w2w (((x:word64) && (63w:word64)):word64)):word6)):word64) = w2n (x && 63w)``,
   rw [w2n_w2w] \\ blastLib.BBLAST_TAC);
+
+val bar = store_thm("bar",
+  ``y:word64 >> w2n ((w2w ((w2w (((x:word64) && (63w:word64)):word64)):word6)):word64)
+      = SignedShiftRight y (x && 63w)``,
+  rw [foo]
+  \\ fs [SignedShiftRight_def,GSYM w2w_w2w_and_255, w2w_def,w2n_n2w]
+  \\ blastLib.BBLAST_TAC);
 
 val export_init_rw = save_thm("export_init_rw",
   CONJ (CONJ (CONJ (CONJ (CONJ w2n_w2w foo) (LIST_CONJ bit_field_inserts)) bit_field_insert_11_9) bit_field_insert_31_16) v2w_field_insert_31_16);

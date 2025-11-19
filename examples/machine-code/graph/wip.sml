@@ -15,7 +15,16 @@ echo 'load "wip";' | ../../../bin/hol
 *)
 
 val foo = store_thm("foo",
-  ``w2n ((w2w ((w2w ((x && 63w):word64)):word6)):word64) = w2n (x && 63w)``,
+  ``w2n ((w2w ((w2w (((x:word64) && (63w:word64)):word64)):word6)):word64) = w2n (x && 63w)``,
+  rw [w2n_w2w] \\ blastLib.BBLAST_TAC);
+
+val bar = store_thm("bar",
+  ``y:word64 >> w2n ((w2w ((w2w (((x:word64) && (63w:word64)):word64)):word6)):word64)
+      = SignedShiftRight y (x && 63w)``,
+    fs [SignedShiftRight_def,ShiftRight_def,ShiftLeft_def,GSYM w2w_w2w_and_255]
+  \\ fs [w2w_def,w2n_n2w]
+  \\ `w2n v MOD 256 < 4294967296` by all_tac \\ fs []
+  \\ match_mp_tac LESS_TRANS \\ qexists_tac `256` \\ fs [] \\
   rw [w2n_w2w] \\ blastLib.BBLAST_TAC);
 
 (*

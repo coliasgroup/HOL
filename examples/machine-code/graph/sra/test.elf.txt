@@ -1,0 +1,69 @@
+
+build/kernel.elf:     file format elf64-littleriscv
+
+
+Disassembly of section .boot.text:
+
+ffffffff840055ec <cap_get_capSizeBits>:
+ffffffff840055ec:	1101                	addi	sp,sp,-32
+ffffffff840055ee:	03b55693          	srli	a3,a0,0x3b
+ffffffff840055f2:	ec06                	sd	ra,24(sp)
+ffffffff840055f4:	e42e                	sd	a1,8(sp)
+ffffffff840055f6:	4751                	li	a4,20
+ffffffff840055f8:	87aa                	mv	a5,a0
+ffffffff840055fa:	8636                	mv	a2,a3
+ffffffff840055fc:	00d76e63          	bltu	a4,a3,ffffffff84005618 <cap_get_capSizeBits+0x2c>
+ffffffff84005600:	19418693          	addi	a3,gp,404 # ffffffff8400b46c <platform_interrupt_t+0x4>
+ffffffff84005604:	00261713          	slli	a4,a2,0x2
+ffffffff84005608:	9736                	add	a4,a4,a3
+ffffffff8400560a:	4318                	lw	a4,0(a4)
+ffffffff8400560c:	9736                	add	a4,a4,a3
+ffffffff8400560e:	8702                	jr	a4
+ffffffff84005610:	4501                	li	a0,0
+ffffffff84005612:	60e2                	ld	ra,24(sp)
+ffffffff84005614:	6105                	addi	sp,sp,32
+ffffffff84005616:	8082                	ret
+ffffffff84005618:	7779                	lui	a4,0xffffe
+ffffffff8400561a:	175d                	addi	a4,a4,-9 # ffffffffffffdff7 <ki_end+0x7bfdbff7>
+ffffffff8400561c:	40c75733          	sra	a4,a4,a2
+ffffffff84005620:	8b05                	andi	a4,a4,1
+ffffffff84005622:	cf39                	beqz	a4,ffffffff84005680 <cap_get_capSizeBits+0x94>
+ffffffff84005624:	4705                	li	a4,1
+ffffffff84005626:	4501                	li	a0,0
+ffffffff84005628:	fee615e3          	bne	a2,a4,ffffffff84005612 <cap_get_capSizeBits+0x26>
+ffffffff8400562c:	93e5                	srli	a5,a5,0x39
+ffffffff8400562e:	8b8d                	andi	a5,a5,3
+ffffffff84005630:	470d                	li	a4,3
+ffffffff84005632:	04e78963          	beq	a5,a4,ffffffff84005684 <cap_get_capSizeBits+0x98>
+ffffffff84005636:	00379513          	slli	a0,a5,0x3
+ffffffff8400563a:	953e                	add	a0,a0,a5
+ffffffff8400563c:	0531                	addi	a0,a0,12
+ffffffff8400563e:	bfd1                	j	ffffffff84005612 <cap_get_capSizeBits+0x26>
+ffffffff84005640:	6522                	ld	a0,8(sp)
+ffffffff84005642:	60e2                	ld	ra,24(sp)
+ffffffff84005644:	03f57513          	andi	a0,a0,63
+ffffffff84005648:	6105                	addi	sp,sp,32
+ffffffff8400564a:	8082                	ret
+ffffffff8400564c:	60e2                	ld	ra,24(sp)
+ffffffff8400564e:	913d                	srli	a0,a0,0x2f
+ffffffff84005650:	03f57513          	andi	a0,a0,63
+ffffffff84005654:	0515                	addi	a0,a0,5
+ffffffff84005656:	6105                	addi	sp,sp,32
+ffffffff84005658:	8082                	ret
+ffffffff8400565a:	07f57713          	andi	a4,a0,127
+ffffffff8400565e:	04000693          	li	a3,64
+ffffffff84005662:	00d70963          	beq	a4,a3,ffffffff84005674 <cap_get_capSizeBits+0x88>
+ffffffff84005666:	60e2                	ld	ra,24(sp)
+ffffffff84005668:	03f57793          	andi	a5,a0,63
+ffffffff8400566c:	00578513          	addi	a0,a5,5
+ffffffff84005670:	6105                	addi	sp,sp,32
+ffffffff84005672:	8082                	ret
+ffffffff84005674:	4529                	li	a0,10
+ffffffff84005676:	bf71                	j	ffffffff84005612 <cap_get_capSizeBits+0x26>
+ffffffff84005678:	4515                	li	a0,5
+ffffffff8400567a:	bf61                	j	ffffffff84005612 <cap_get_capSizeBits+0x26>
+ffffffff8400567c:	4511                	li	a0,4
+ffffffff8400567e:	bf51                	j	ffffffff84005612 <cap_get_capSizeBits+0x26>
+ffffffff84005680:	4531                	li	a0,12
+ffffffff84005682:	bf41                	j	ffffffff84005612 <cap_get_capSizeBits+0x26>
+ffffffff84005684:	db2fe0ef          	jal	ffffffff84003c36 <halt>
