@@ -1,0 +1,207 @@
+
+build/kernel.elf:     file format elf64-littleriscv
+
+
+Disassembly of section .boot.text:
+
+ffffffff84006daa <chooseThread>:
+ffffffff84006daa:	8c81b603          	ld	a2,-1848(gp) # ffffffff8400aba0 <ksCurDomain>
+ffffffff84006dae:	00361713          	slli	a4,a2,0x3
+ffffffff84006db2:	ca818793          	addi	a5,gp,-856 # ffffffff8400af80 <ksReadyQueuesL1Bitmap>
+ffffffff84006db6:	97ba                	add	a5,a5,a4
+ffffffff84006db8:	6398                	ld	a4,0(a5)
+ffffffff84006dba:	1141                	addi	sp,sp,-16
+ffffffff84006dbc:	e406                	sd	ra,8(sp)
+ffffffff84006dbe:	e022                	sd	s0,0(sp)
+ffffffff84006dc0:	14070263          	beqz	a4,ffffffff84006f04 <chooseThread+0x15a>
+ffffffff84006dc4:	4505                	li	a0,1
+ffffffff84006dc6:	1502                	slli	a0,a0,0x20
+ffffffff84006dc8:	00a737b3          	sltu	a5,a4,a0
+ffffffff84006dcc:	0017c793          	xori	a5,a5,1
+ffffffff84006dd0:	0057979b          	slliw	a5,a5,0x5
+ffffffff84006dd4:	00f75733          	srl	a4,a4,a5
+ffffffff84006dd8:	65c1                	lui	a1,0x10
+ffffffff84006dda:	00b73e33          	sltu	t3,a4,a1
+ffffffff84006dde:	001e4e13          	xori	t3,t3,1
+ffffffff84006de2:	004e1e1b          	slliw	t3,t3,0x4
+ffffffff84006de6:	01c75733          	srl	a4,a4,t3
+ffffffff84006dea:	10073313          	sltiu	t1,a4,256
+ffffffff84006dee:	00134313          	xori	t1,t1,1
+ffffffff84006df2:	0033131b          	slliw	t1,t1,0x3
+ffffffff84006df6:	00675733          	srl	a4,a4,t1
+ffffffff84006dfa:	01073893          	sltiu	a7,a4,16
+ffffffff84006dfe:	0018c893          	xori	a7,a7,1
+ffffffff84006e02:	0028989b          	slliw	a7,a7,0x2
+ffffffff84006e06:	01175733          	srl	a4,a4,a7
+ffffffff84006e0a:	04000693          	li	a3,64
+ffffffff84006e0e:	00473813          	sltiu	a6,a4,4
+ffffffff84006e12:	40f687bb          	subw	a5,a3,a5
+ffffffff84006e16:	00184813          	xori	a6,a6,1
+ffffffff84006e1a:	0018181b          	slliw	a6,a6,0x1
+ffffffff84006e1e:	41c787bb          	subw	a5,a5,t3
+ffffffff84006e22:	01075733          	srl	a4,a4,a6
+ffffffff84006e26:	406787bb          	subw	a5,a5,t1
+ffffffff84006e2a:	411787bb          	subw	a5,a5,a7
+ffffffff84006e2e:	00273893          	sltiu	a7,a4,2
+ffffffff84006e32:	0018c893          	xori	a7,a7,1
+ffffffff84006e36:	410787bb          	subw	a5,a5,a6
+ffffffff84006e3a:	01175733          	srl	a4,a4,a7
+ffffffff84006e3e:	411787bb          	subw	a5,a5,a7
+ffffffff84006e42:	9f99                	subw	a5,a5,a4
+ffffffff84006e44:	fc478813          	addi	a6,a5,-60
+ffffffff84006e48:	00261713          	slli	a4,a2,0x2
+ffffffff84006e4c:	9742                	add	a4,a4,a6
+ffffffff84006e4e:	070e                	slli	a4,a4,0x3
+ffffffff84006e50:	aa818813          	addi	a6,gp,-1368 # ffffffff8400ad80 <ksReadyQueuesL2Bitmap>
+ffffffff84006e54:	9742                	add	a4,a4,a6
+ffffffff84006e56:	6318                	ld	a4,0(a4)
+ffffffff84006e58:	03f00813          	li	a6,63
+ffffffff84006e5c:	40f807b3          	sub	a5,a6,a5
+ffffffff84006e60:	00a73533          	sltu	a0,a4,a0
+ffffffff84006e64:	00154513          	xori	a0,a0,1
+ffffffff84006e68:	0055151b          	slliw	a0,a0,0x5
+ffffffff84006e6c:	00a75733          	srl	a4,a4,a0
+ffffffff84006e70:	00b735b3          	sltu	a1,a4,a1
+ffffffff84006e74:	0015c593          	xori	a1,a1,1
+ffffffff84006e78:	0045959b          	slliw	a1,a1,0x4
+ffffffff84006e7c:	00b75733          	srl	a4,a4,a1
+ffffffff84006e80:	10073e13          	sltiu	t3,a4,256
+ffffffff84006e84:	001e4e13          	xori	t3,t3,1
+ffffffff84006e88:	003e1e1b          	slliw	t3,t3,0x3
+ffffffff84006e8c:	01c75733          	srl	a4,a4,t3
+ffffffff84006e90:	01073313          	sltiu	t1,a4,16
+ffffffff84006e94:	00134313          	xori	t1,t1,1
+ffffffff84006e98:	0023131b          	slliw	t1,t1,0x2
+ffffffff84006e9c:	00675733          	srl	a4,a4,t1
+ffffffff84006ea0:	00473893          	sltiu	a7,a4,4
+ffffffff84006ea4:	9e89                	subw	a3,a3,a0
+ffffffff84006ea6:	0018c513          	xori	a0,a7,1
+ffffffff84006eaa:	0015151b          	slliw	a0,a0,0x1
+ffffffff84006eae:	9e8d                	subw	a3,a3,a1
+ffffffff84006eb0:	00a75733          	srl	a4,a4,a0
+ffffffff84006eb4:	41c686bb          	subw	a3,a3,t3
+ffffffff84006eb8:	406686bb          	subw	a3,a3,t1
+ffffffff84006ebc:	00273593          	sltiu	a1,a4,2
+ffffffff84006ec0:	0015c593          	xori	a1,a1,1
+ffffffff84006ec4:	9e89                	subw	a3,a3,a0
+ffffffff84006ec6:	9e8d                	subw	a3,a3,a1
+ffffffff84006ec8:	00b75733          	srl	a4,a4,a1
+ffffffff84006ecc:	40e6873b          	subw	a4,a3,a4
+ffffffff84006ed0:	40e80833          	sub	a6,a6,a4
+ffffffff84006ed4:	079a                	slli	a5,a5,0x6
+ffffffff84006ed6:	00f86833          	or	a6,a6,a5
+ffffffff84006eda:	0622                	slli	a2,a2,0x8
+ffffffff84006edc:	9642                	add	a2,a2,a6
+ffffffff84006ede:	0612                	slli	a2,a2,0x4
+ffffffff84006ee0:	00006797          	auipc	a5,0x6
+ffffffff84006ee4:	92078793          	addi	a5,a5,-1760 # ffffffff8400c800 <ksReadyQueues>
+ffffffff84006ee8:	97b2                	add	a5,a5,a2
+ffffffff84006eea:	6380                	ld	s0,0(a5)
+ffffffff84006eec:	8522                	mv	a0,s0
+ffffffff84006eee:	a40fd0ef          	jal	ffffffff8400412e <setVMRoot>
+ffffffff84006ef2:	8522                	mv	a0,s0
+ffffffff84006ef4:	d11ff0ef          	jal	ffffffff84006c04 <tcbSchedDequeue>
+ffffffff84006ef8:	60a2                	ld	ra,8(sp)
+ffffffff84006efa:	aa81b023          	sd	s0,-1376(gp) # ffffffff8400ad78 <ksCurThread>
+ffffffff84006efe:	6402                	ld	s0,0(sp)
+ffffffff84006f00:	0141                	addi	sp,sp,16
+ffffffff84006f02:	8082                	ret
+ffffffff84006f04:	a9818413          	addi	s0,gp,-1384 # ffffffff8400ad70 <ksIdleThread>
+ffffffff84006f08:	6008                	ld	a0,0(s0)
+ffffffff84006f0a:	a24fd0ef          	jal	ffffffff8400412e <setVMRoot>
+ffffffff84006f0e:	6000                	ld	s0,0(s0)
+ffffffff84006f10:	60a2                	ld	ra,8(sp)
+ffffffff84006f12:	aa81b023          	sd	s0,-1376(gp) # ffffffff8400ad78 <ksCurThread>
+ffffffff84006f16:	6402                	ld	s0,0(sp)
+ffffffff84006f18:	0141                	addi	sp,sp,16
+ffffffff84006f1a:	8082                	ret
+
+ffffffff84003afe <isHighestPrio>:
+ffffffff84003afe:	00351713          	slli	a4,a0,0x3
+ffffffff84003b02:	ca818793          	addi	a5,gp,-856 # ffffffff8400af80 <ksReadyQueuesL1Bitmap>
+ffffffff84003b06:	97ba                	add	a5,a5,a4
+ffffffff84003b08:	639c                	ld	a5,0(a5)
+ffffffff84003b0a:	12078463          	beqz	a5,ffffffff84003c32 <isHighestPrio+0x134>
+ffffffff84003b0e:	4805                	li	a6,1
+ffffffff84003b10:	1802                	slli	a6,a6,0x20
+ffffffff84003b12:	0107b733          	sltu	a4,a5,a6
+ffffffff84003b16:	00174713          	xori	a4,a4,1
+ffffffff84003b1a:	0057171b          	slliw	a4,a4,0x5
+ffffffff84003b1e:	00e7d7b3          	srl	a5,a5,a4
+ffffffff84003b22:	6641                	lui	a2,0x10
+ffffffff84003b24:	00c7beb3          	sltu	t4,a5,a2
+ffffffff84003b28:	001ece93          	xori	t4,t4,1
+ffffffff84003b2c:	004e9e9b          	slliw	t4,t4,0x4
+ffffffff84003b30:	01d7d7b3          	srl	a5,a5,t4
+ffffffff84003b34:	1007be13          	sltiu	t3,a5,256
+ffffffff84003b38:	001e4e13          	xori	t3,t3,1
+ffffffff84003b3c:	003e1e1b          	slliw	t3,t3,0x3
+ffffffff84003b40:	01c7d7b3          	srl	a5,a5,t3
+ffffffff84003b44:	0107b313          	sltiu	t1,a5,16
+ffffffff84003b48:	00134313          	xori	t1,t1,1
+ffffffff84003b4c:	0023131b          	slliw	t1,t1,0x2
+ffffffff84003b50:	0067d7b3          	srl	a5,a5,t1
+ffffffff84003b54:	04000693          	li	a3,64
+ffffffff84003b58:	0047b893          	sltiu	a7,a5,4
+ffffffff84003b5c:	40e6873b          	subw	a4,a3,a4
+ffffffff84003b60:	0018c893          	xori	a7,a7,1
+ffffffff84003b64:	0018989b          	slliw	a7,a7,0x1
+ffffffff84003b68:	41d7073b          	subw	a4,a4,t4
+ffffffff84003b6c:	0117d7b3          	srl	a5,a5,a7
+ffffffff84003b70:	41c7073b          	subw	a4,a4,t3
+ffffffff84003b74:	4067073b          	subw	a4,a4,t1
+ffffffff84003b78:	0027b313          	sltiu	t1,a5,2
+ffffffff84003b7c:	00134313          	xori	t1,t1,1
+ffffffff84003b80:	4117073b          	subw	a4,a4,a7
+ffffffff84003b84:	4067073b          	subw	a4,a4,t1
+ffffffff84003b88:	0067d7b3          	srl	a5,a5,t1
+ffffffff84003b8c:	40f707bb          	subw	a5,a4,a5
+ffffffff84003b90:	fc478713          	addi	a4,a5,-60
+ffffffff84003b94:	050a                	slli	a0,a0,0x2
+ffffffff84003b96:	953a                	add	a0,a0,a4
+ffffffff84003b98:	050e                	slli	a0,a0,0x3
+ffffffff84003b9a:	aa818713          	addi	a4,gp,-1368 # ffffffff8400ad80 <ksReadyQueuesL2Bitmap>
+ffffffff84003b9e:	972a                	add	a4,a4,a0
+ffffffff84003ba0:	6318                	ld	a4,0(a4)
+ffffffff84003ba2:	03f00893          	li	a7,63
+ffffffff84003ba6:	40f887b3          	sub	a5,a7,a5
+ffffffff84003baa:	01073533          	sltu	a0,a4,a6
+ffffffff84003bae:	00154513          	xori	a0,a0,1
+ffffffff84003bb2:	0055151b          	slliw	a0,a0,0x5
+ffffffff84003bb6:	00a75733          	srl	a4,a4,a0
+ffffffff84003bba:	00c73633          	sltu	a2,a4,a2
+ffffffff84003bbe:	00164613          	xori	a2,a2,1
+ffffffff84003bc2:	0046161b          	slliw	a2,a2,0x4
+ffffffff84003bc6:	00c75733          	srl	a4,a4,a2
+ffffffff84003bca:	10073e13          	sltiu	t3,a4,256
+ffffffff84003bce:	001e4e13          	xori	t3,t3,1
+ffffffff84003bd2:	003e1e1b          	slliw	t3,t3,0x3
+ffffffff84003bd6:	01c75733          	srl	a4,a4,t3
+ffffffff84003bda:	01073313          	sltiu	t1,a4,16
+ffffffff84003bde:	00134313          	xori	t1,t1,1
+ffffffff84003be2:	0023131b          	slliw	t1,t1,0x2
+ffffffff84003be6:	00675733          	srl	a4,a4,t1
+ffffffff84003bea:	00473813          	sltiu	a6,a4,4
+ffffffff84003bee:	9e89                	subw	a3,a3,a0
+ffffffff84003bf0:	00184513          	xori	a0,a6,1
+ffffffff84003bf4:	0015151b          	slliw	a0,a0,0x1
+ffffffff84003bf8:	9e91                	subw	a3,a3,a2
+ffffffff84003bfa:	00a75733          	srl	a4,a4,a0
+ffffffff84003bfe:	41c686bb          	subw	a3,a3,t3
+ffffffff84003c02:	406686bb          	subw	a3,a3,t1
+ffffffff84003c06:	00273613          	sltiu	a2,a4,2
+ffffffff84003c0a:	00164613          	xori	a2,a2,1
+ffffffff84003c0e:	9e89                	subw	a3,a3,a0
+ffffffff84003c10:	9e91                	subw	a3,a3,a2
+ffffffff84003c12:	00c75733          	srl	a4,a4,a2
+ffffffff84003c16:	40e6873b          	subw	a4,a3,a4
+ffffffff84003c1a:	40e888b3          	sub	a7,a7,a4
+ffffffff84003c1e:	079a                	slli	a5,a5,0x6
+ffffffff84003c20:	00f8e8b3          	or	a7,a7,a5
+ffffffff84003c24:	0115b533          	sltu	a0,a1,a7
+ffffffff84003c28:	00154513          	xori	a0,a0,1
+ffffffff84003c2c:	1502                	slli	a0,a0,0x20
+ffffffff84003c2e:	9101                	srli	a0,a0,0x20
+ffffffff84003c30:	8082                	ret
+ffffffff84003c32:	4505                	li	a0,1
+ffffffff84003c34:	8082                	ret

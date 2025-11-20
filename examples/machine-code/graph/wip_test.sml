@@ -16,6 +16,6 @@ open HolKernel;
 load "wip_test";
 *)
 
-val _ = decompileLib.decomp "aarch64/test" false ""
+val _ = decompileLib.decomp "riscv64/test" false ""
 
 val _ = OS.Process.exit OS.Process.success

@@ -157,9 +157,13 @@ fun find_stack_accesses_for all_summaries sec_name = let
                   | _ => [(``r0:word32``,``^sp_var + offset``)])
                else []),T)
   val (pc,s,t) = state
+  val _ = print "Y A\n"
   val us = filter (fn (p,_,_,_,_) => aconv p pc) all_summaries
+  val _ = print "Y B\n"
   val (pc1,assum,u,addr,pc2) = hd us
+  val _ = print "Y C\n"
   val stack_accesses = ref ([]:int list);
+  val _ = print "Y D\n"
   fun add_stack_access pc = let
     val n = pc |> wordsSyntax.dest_n2w |> fst |> numSyntax.int_of_term
     val a = !stack_accesses
@@ -184,7 +188,9 @@ fun find_stack_accesses_for all_summaries sec_name = let
          (aconv w2 sp_var andalso wordsSyntax.is_n2w w1) end
     handle HOL_ERR _ => false
   val stack_read32_pat = ``READ32 (a:word32) m``
+  val _ = print "Y E\n"
   val stack_read64_pat = ``READ64 (a:word64) m``
+  val _ = print "Y F\n"
   fun is_simple_or_stack_read32 (x,y) =
     if is_var x then true else
     if can (match_term stack_read32_pat) x then
@@ -200,6 +206,7 @@ fun find_stack_accesses_for all_summaries sec_name = let
                                  else is_simple_or_stack_read32)
   val word_simp_tm = rand o concl o QCONV (SIMP_CONV std_ss [word_arith_lemma1] THENC
         SIMP_CONV std_ss [word_arith_lemma3,word_arith_lemma4,WORD_ADD_0])
+  val _ = print "Y G\n"
   fun exec_step s t (pc1,assum,u,addr,pc2) = let
     val s_simple = filter (fn (x,_) => is_var x) s
     val s_read_word = filter (fn (x,_) => not (is_var x)) s
@@ -221,6 +228,7 @@ fun find_stack_accesses_for all_summaries sec_name = let
     in () end
   val read_word_pat = (if !arch_name = RISCV then ``READ64 a (m:word64->word8)``
                                              else ``READ32 a (m:word32->word8)``)
+  val _ = print "Y H\n"
   fun remove_read_word tm = let
     val xs = find_terms (can (match_term read_word_pat)) tm
     val ss = map (fn x => x |-> (mk_arb(type_of x))) xs
@@ -243,6 +251,7 @@ fun find_stack_accesses_for all_summaries sec_name = let
     | term_term_mem (t1,t2) ((x,y)::xs) =
         (aconv t1 x andalso aconv t2 y) orelse term_term_mem (t1,t2) xs
   val seen_nodes = ref ([]:(term * term) list)
+  val _ = print "Y I\n"
   fun has_visited (pc,s,t) = let
     val seen = !seen_nodes
     in if term_term_mem (t,pc) seen then true else
@@ -269,17 +278,24 @@ fun find_stack_accesses_for all_summaries sec_name = let
    *)
       val _ = map exec_steps states
       in () end
+  val _ = print "Y J\n"
   val _ = exec_steps state
+  val _ = print "Y K\n"
   val xs = !stack_accesses
+  val _ = print "Y L\n"
   in xs end;
 
 fun find_stack_accesses sec_name thms = let
   val _ = write_subsection "\nStack analysis"
   val all_summaries = map approx_summary thms |> flatten
+  val _ = print "X A\n"
   val all_simple_summaries = all_summaries
     |> map (fn (x,a,u,z,y) => (x,a,filter (is_var o fst) u,z,y))
+  val _ = print "X B\n"
   val all_stack_accesses = find_stack_accesses_for all_summaries sec_name
+  val _ = print "X C\n"
   val simple_stack_accesses = find_stack_accesses_for all_simple_summaries sec_name
+  val _ = print "X D\n"
   fun annotation loc =
     if mem loc simple_stack_accesses then "stack access" else
     if mem loc all_stack_accesses then "indirect stack access" else fail()
