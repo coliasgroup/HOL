@@ -2283,11 +2283,20 @@ val blast_append_0_lemma = prove(
     (((w2w:word32 -> 30 word) w @@ (0w:word2)) : word32 = w << 2)``,
   blastLib.BBLAST_TAC);
 
+val rw_sra = store_thm("rw_sra",
+  ``w:word64 >> w2n ((w2w ((w2w (y && 63w)):word6)):word64)
+      = SignedShiftRight w (y && 63w)``,
+  `w2n ((w2w ((w2w (y && 63w)):word6)):word64) = w2n (y && 63w)`
+      by (rw [w2n_w2w] \\ blastLib.BBLAST_TAC)
+  \\ fs [SignedShiftRight_def,w2w_def]
+  \\ blastLib.BBLAST_TAC);
+
 val graph_format_preprocessing = save_thm("graph_format_preprocessing",
   LIST_CONJ [MemAcc8_def, MemAcc32_def, MemAcc64_def,
              ShiftLeft_def, ShiftRight_def,
              MemUpdate8_def, MemUpdate32_def, MemUpdate64_def] |> GSYM
   |> CONJ rw1 |> CONJ rw3 |> CONJ rw64 |> CONJ rw16 |> CONJ rw8 |> CONJ rw4
+  |> CONJ rw_sra
   |> CONJ w2w_carry |> CONJ w2w_carry_alt
   |> CONJ carry_out_eq
   |> CONJ READ32_expand64
@@ -2599,11 +2608,6 @@ val fixwidth_w2v = prove(
   ``fixwidth (dimindex (:'a)) (w2v (w:'a word)) = w2v w``,
   EVAL_TAC \\ fs []);
 
-val bit_field_insert_11_9 = store_thm("bit_field_insert_11_9",
-  ``(bit_field_insert 11 9 (v:word32) (w:word32) =
-     ((v << (32 - ((11 + 1) - 9)) >>> (32 - (11 + 1))) || (w << (32 - 9)) >>> (32 - 9) || (w >>> (11 + 1)) << (11 + 1)):word32)``,
-  blastLib.BBLAST_TAC);
-
 Theorem bit_field_insert_31_16:
     (bit_field_insert 31 16 v (w:word32) =
      (v << 16 || (w << 16) >>> 16):word32) /\
@@ -2634,8 +2638,38 @@ Proof
   fs [WORD_LEFT_ADD_DISTRIB]
 QED
 
+fun bit_field_insert_h_l h l = store_thm("bit_field_insert_" ^ Int.toString h ^ "_" ^ Int.toString l,
+  ``bit_field_insert h l (v:word32) (w:word32) =
+      (v << (32 - ((h + 1) - l)) >>> (32 - (h + 1)))
+        || (w << (32 - l)) >>> (32 - l)
+        || (w >>> (h + 1)) << (h + 1)``
+    |> Term.subst [``h:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt h)]
+    |> Term.subst [``l:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt l)],
+  blastLib.BBLAST_TAC);
+
+fun bit_field_insert_h_0 h = store_thm("bit_field_insert_" ^ Int.toString h ^ "_0",
+  ``bit_field_insert h 0 (v:word32) (w:word32) =
+      (v << (32 - (h + 1)) >>> (32 - (h + 1)))
+        || (w >>> (h + 1)) << (h + 1)``
+    |> Term.subst [``h:num`` |-> numSyntax.mk_numeral (Arbnum.fromInt h)],
+  blastLib.BBLAST_TAC);
+
+val bit_field_inserts =
+  LIST_CONJ (List.tabulate (20, bit_field_insert_h_0))
+  |> CONJ (LIST_CONJ [
+      bit_field_insert_h_l 1 1,
+      bit_field_insert_h_l 2 2,
+      bit_field_insert_h_l 3 3,
+      bit_field_insert_h_l 5 5,
+      bit_field_insert_h_l 11 9,
+      bit_field_insert_h_l 28 12,
+      bit_field_insert_h_l 29 12,
+      bit_field_insert_h_l 29 19,
+      bit_field_insert_h_l 29 20
+    ]);
+
 val export_init_rw = save_thm("export_init_rw",
-  CONJ (CONJ bit_field_insert_11_9 bit_field_insert_31_16) v2w_field_insert_31_16);
+  CONJ (CONJ bit_field_inserts bit_field_insert_31_16) v2w_field_insert_31_16);
 
 val m0_preprocessing = save_thm("m0_preprocessing",
   CONJ (EVAL ``RName_LR = RName_PC``) (EVAL ``RName_PC = RName_LR``));
