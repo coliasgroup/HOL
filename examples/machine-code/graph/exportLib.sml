@@ -22,6 +22,7 @@ local
     val _ = print "\n"
     in () end;
   fun print_tm_fail tm = let
+    val _ = set_trace "types" 1
     val _ = print "FAILED to translate term: "
     val _ = print_term tm
     val _ = (print "\n\nwith head: "; print_term (head_of tm))
