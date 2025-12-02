@@ -2705,8 +2705,7 @@ val tst_helper_w2w_w2w_lemma = prove(
   fs [w2n_11,Once tst_helper_lemma,w2w_def] \\ assume_tac tst_helper_lemma \\ fs [WORD_LO]);
 
 val tst_helpers = LIST_CONJ [
-  tst_helper_w2w_w2w_lemma,
-  tst_helper_lemma
+  tst_helper_w2w_w2w_lemma
 ];
 
 val export_init_rw = save_thm("export_init_rw",
