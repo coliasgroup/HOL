@@ -2673,6 +2673,7 @@ val bit_field_inserts =
       bit_field_insert_h_l  6  6,
       bit_field_insert_h_l  7  2,
       bit_field_insert_h_l  8  7,
+      bit_field_insert_h_l  8  8,
       bit_field_insert_h_l 11  9,
       bit_field_insert_h_l 13  8,
       bit_field_insert_h_l 19 18,
