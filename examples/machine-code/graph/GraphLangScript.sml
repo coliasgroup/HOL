@@ -2700,12 +2700,21 @@ val tst_helper_lemma = blastLib.BBLAST_PROVE
   ``!v. ((w2w (v:word32)):word8 = w2w (v && 255w)) /\
         (v && 255w) <+ 256w:word32``
 
+val tst_helper_lemma2 = blastLib.BBLAST_PROVE
+  ``!v. ((w2w (v:word32)):word8 = w2w (v && 255w)) /\
+        (v && 255w) <+ 256w:word32``
+
 val tst_helper_w2w_w2w_lemma = prove(
   ``w2n (w2w (v:word32) :word8) = w2n (v && 255w:word32)``,
   fs [w2n_11,Once tst_helper_lemma,w2w_def] \\ assume_tac tst_helper_lemma \\ fs [WORD_LO]);
 
+val tst_helpers = LIST_CONJ [
+  tst_helper_lemma2,
+  tst_helper_w2w_w2w_lemma
+];
+
 val export_init_rw = save_thm("export_init_rw",
-  CONJ (CONJ (CONJ tst_helper_w2w_w2w_lemma bit_field_inserts) bit_field_insert_31_16) v2w_field_insert_31_16);
+  CONJ (CONJ (CONJ tst_helpers bit_field_inserts) bit_field_insert_31_16) v2w_field_insert_31_16);
 
 val m0_preprocessing = save_thm("m0_preprocessing",
   CONJ (EVAL ``RName_LR = RName_PC``) (EVAL ``RName_PC = RName_LR``));
