@@ -2657,11 +2657,11 @@ fun bit_field_insert_h_0 h = store_thm("bit_field_insert_" ^ Int.toString h ^ "_
 val bit_field_inserts =
   LIST_CONJ (List.tabulate (20, bit_field_insert_h_0))
   |> CONJ (LIST_CONJ [
-      bit_field_insert_h_l 1 1,
-      bit_field_insert_h_l 2 2,
-      bit_field_insert_h_l 3 3,
-      bit_field_insert_h_l 5 5,
-      bit_field_insert_h_l 11 9,
+      bit_field_insert_h_l  1  1,
+      bit_field_insert_h_l  2  2,
+      bit_field_insert_h_l  3  3,
+      bit_field_insert_h_l  5  5,
+      bit_field_insert_h_l 11  9,
       bit_field_insert_h_l 28 12,
       bit_field_insert_h_l 29 12,
       bit_field_insert_h_l 29 19,
