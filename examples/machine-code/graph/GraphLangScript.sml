@@ -2655,17 +2655,37 @@ fun bit_field_insert_h_0 h = store_thm("bit_field_insert_" ^ Int.toString h ^ "_
   blastLib.BBLAST_TAC);
 
 val bit_field_inserts =
-  LIST_CONJ (List.tabulate (20, bit_field_insert_h_0))
+  LIST_CONJ (List.tabulate (31, bit_field_insert_h_0))
   |> CONJ (LIST_CONJ [
       bit_field_insert_h_l  1  1,
       bit_field_insert_h_l  2  2,
+      bit_field_insert_h_l  3  1,
       bit_field_insert_h_l  3  3,
+      bit_field_insert_h_l  4  1,
       bit_field_insert_h_l  5  5,
+      bit_field_insert_h_l  6  6,
+      bit_field_insert_h_l  7  2,
+      bit_field_insert_h_l  8  7,
       bit_field_insert_h_l 11  9,
+      bit_field_insert_h_l 13  8,
+      bit_field_insert_h_l 19 18,
+      bit_field_insert_h_l 21 20,
+      bit_field_insert_h_l 23 23,
+      bit_field_insert_h_l 27 23,
       bit_field_insert_h_l 28 12,
+      bit_field_insert_h_l 28 22,
       bit_field_insert_h_l 29 12,
       bit_field_insert_h_l 29 19,
-      bit_field_insert_h_l 29 20
+      bit_field_insert_h_l 29 20,
+      bit_field_insert_h_l 29 29,
+      bit_field_insert_h_l 30 24,
+      bit_field_insert_h_l 31  3,
+      bit_field_insert_h_l 31  4,
+      bit_field_insert_h_l 31  9,
+      bit_field_insert_h_l 31 10,
+      bit_field_insert_h_l 31 17,
+      bit_field_insert_h_l 31 18,
+      bit_field_insert_h_l 31 22
     ]);
 
 val export_init_rw = save_thm("export_init_rw",
