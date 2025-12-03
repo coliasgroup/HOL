@@ -2274,6 +2274,35 @@ val xxxconj = LIST_CONJ [
   xxx2
 ];
 
+(*
+
+open HolKernel Parse boolLib bossLib BasicProvers;
+
+open wordsTheory wordsLib pairTheory listTheory relationTheory;
+open pred_setTheory arithmeticTheory combinTheory;
+open arm_decompTheory set_sepTheory progTheory addressTheory;
+open m0_decompTheory riscv_progTheory;
+open arm_decompLib m0_decompLib;
+
+load "GraphLangTheory";;
+open GraphLangTheory;;
+
+use "GraphLangScript.sml";;
+
+| Command      | Meaning                                 |
+| ------------ | --------------------------------------- |
+| `g "term";`  | Start a new goal                        |
+| `p();`       | Print current goal state                |
+| `e tactic;`  | Apply a tactic                          |
+| `x();`       | Finish the proof and return theorem     |
+| `b();`       | Backtrack one step                      |
+| `top_thm();` | Show final theorem if proof is complete |
+| `restart();` | Reset the proof manager                 |
+
+*)
+
+interactive ();
+
 val word_add_with_carry_eq = prove(
   ``word_add_with_carry (x:'a word) y z =
     x + y + if z then 1w else 0w``,
