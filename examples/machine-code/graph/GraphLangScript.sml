@@ -2245,6 +2245,22 @@ val rw1 = prove(
     ShiftLeft_def,ShiftRight_def,SignedShiftRight_def,w2n_n2w] \\ blastLib.BBLAST_TAC)
   |> SIMP_RULE std_ss [EVAL ``GENLIST I 32``,EVERY_DEF]
 
+val xxx1 = new_axiom("foo1",
+  ``(v :word32) '
+      (MIN (32 :num) (w2n ((w :word32) && (255w :word32))) - (1 :num))
+        = T``);
+
+val xxx2 = new_axiom("foo2",
+  ``((v :word32) &&
+      (w: word32) >> w2n ((x :word32) && (255w :word32)) =
+        (0w :word32))
+          = T``);
+
+val xxxconj = LIST_CONJ [
+  xxx1,
+  xxx2
+];
+
 val word_add_with_carry_eq = prove(
   ``word_add_with_carry (x:'a word) y z =
     x + y + if z then 1w else 0w``,
@@ -2345,7 +2361,7 @@ val graph_format_preprocessing = save_thm("graph_format_preprocessing",
              ShiftLeft_def, ShiftRight_def,
              MemUpdate8_def, MemUpdate32_def, MemUpdate64_def] |> GSYM
   |> CONJ rw1 |> CONJ rw3 |> CONJ rw64 |> CONJ rw16 |> CONJ rw8 |> CONJ rw4
-  |> CONJ rw4xxx
+  |> CONJ xxxconj
   |> CONJ rw_sra
   (* |> CONJ tst_helper_w2w_w2w_lemmax *)
   |> CONJ w2w_carry |> CONJ w2w_carry_alt
