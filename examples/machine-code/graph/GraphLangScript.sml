@@ -2289,6 +2289,23 @@ open GraphLangTheory;;
 
 use "GraphLangScript.sml";;
 
+$(holdir)/examples/l3-machine-code/common \
+$(holdir)/examples/l3-machine-code/arm/model \
+$(holdir)/examples/l3-machine-code/m0/model \
+$(holdir)/examples/l3-machine-code/riscv/model \
+$(holdir)/examples/l3-machine-code/arm/step \
+$(holdir)/examples/l3-machine-code/m0/step \
+$(holdir)/examples/l3-machine-code/riscv/step \
+$(holdir)/examples/l3-machine-code/arm/prog \
+$(holdir)/examples/l3-machine-code/m0/prog \
+$(holdir)/examples/l3-machine-code/riscv/prog \
+$(holdir)/examples/l3-machine-code/arm/decompiler \
+$(holdir)/examples/l3-machine-code/m0/decompiler \
+$(holdir)/examples/l3-machine-code/riscv/decompiler \
+$(holdir)/examples/machine-code/hoare-triple \
+$(holdir)/examples/machine-code/decompiler
+
+
 | Command      | Meaning                                 |
 | ------------ | --------------------------------------- |
 | `g "term";`  | Start a new goal                        |
