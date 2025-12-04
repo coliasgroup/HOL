@@ -2301,8 +2301,6 @@ use "GraphLangScript.sml";;
 
 *)
 
-interactive ();
-
 val word_add_with_carry_eq = prove(
   ``word_add_with_carry (x:'a word) y z =
     x + y + if z then 1w else 0w``,
