@@ -2257,66 +2257,26 @@ val tst_helpers = LIST_CONJ [
   tst_helper_w2w_w2w_lemma
 ];
 
-val xxx1 = new_axiom("foo1",
-  ``(v :word32) '
-      (MIN (32 :num) (w2n ((w :word32) && (255w :word32))) - (1 :num))
-        = T``);
-
 val xxx2 = new_axiom("foo2",
   ``((v :word32) &&
       (w: word32) >> w2n ((x :word32) && (255w :word32)) =
         (0w :word32))
           = T``);
 
+Theorem xxx1:
+    (w :word32) '
+      (MIN (32 :num) (w2n ((v :word32) && (255w :word32))) - (1 :num))
+    = if v && ~31w = 0w
+      then (if v && 255w = 0w then w ' 0 else ShiftRight w ((v && 255w) - 1w) ' 0)
+      else w ' 31
+Proof
+  cheat
+QED
+
 val xxxconj = LIST_CONJ [
   tst_helpers,
-  xxx1,
-  xxx2
+  xxx1
 ];
-
-(*
-
-open HolKernel Parse boolLib bossLib BasicProvers;
-
-open wordsTheory wordsLib pairTheory listTheory relationTheory;
-open pred_setTheory arithmeticTheory combinTheory;
-open arm_decompTheory set_sepTheory progTheory addressTheory;
-open m0_decompTheory riscv_progTheory;
-open arm_decompLib m0_decompLib;
-
-load "GraphLangTheory";;
-open GraphLangTheory;;
-
-use "GraphLangScript.sml";;
-
-$(holdir)/examples/l3-machine-code/common \
-$(holdir)/examples/l3-machine-code/arm/model \
-$(holdir)/examples/l3-machine-code/m0/model \
-$(holdir)/examples/l3-machine-code/riscv/model \
-$(holdir)/examples/l3-machine-code/arm/step \
-$(holdir)/examples/l3-machine-code/m0/step \
-$(holdir)/examples/l3-machine-code/riscv/step \
-$(holdir)/examples/l3-machine-code/arm/prog \
-$(holdir)/examples/l3-machine-code/m0/prog \
-$(holdir)/examples/l3-machine-code/riscv/prog \
-$(holdir)/examples/l3-machine-code/arm/decompiler \
-$(holdir)/examples/l3-machine-code/m0/decompiler \
-$(holdir)/examples/l3-machine-code/riscv/decompiler \
-$(holdir)/examples/machine-code/hoare-triple \
-$(holdir)/examples/machine-code/decompiler
-
-
-| Command      | Meaning                                 |
-| ------------ | --------------------------------------- |
-| `g "term";`  | Start a new goal                        |
-| `p();`       | Print current goal state                |
-| `e tactic;`  | Apply a tactic                          |
-| `x();`       | Finish the proof and return theorem     |
-| `b();`       | Backtrack one step                      |
-| `top_thm();` | Show final theorem if proof is complete |
-| `restart();` | Reset the proof manager                 |
-
-*)
 
 val word_add_with_carry_eq = prove(
   ``word_add_with_carry (x:'a word) y z =
