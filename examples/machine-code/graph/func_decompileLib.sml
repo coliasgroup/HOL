@@ -190,8 +190,11 @@ fun prove_funcs_ok names = let
     val th = mk_thm([],``func_ok all_riscv_code locs (Func "__ctzdi2" 2147580890w [])``)
     *)
     fun export_empty th = let
+      val _ = print "YYYY "
+      val _ = print_thm th
       val sec_name = th |> concl |> rand |> rator |> rator |> rand
                         |> stringLib.fromHOLstring
+      val _ = print ("XXXXX " ^ sec_name)
       in func_export sec_name th TRUTH end
     val _ = map export_empty extra_fs
     in fs @ extra_fs end
