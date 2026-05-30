@@ -77,7 +77,7 @@ fun read_sections filename = let
 val remove_dot =
   String.translate (fn c => if mem c [#".",#" "] then "_" else implode [c])
 
-fun format_line sec_name = let
+fun format_line is_riscv sec_name = let
   fun find_first i c s = if String.sub(s,i) = c then i else find_first (i+1) c s
   fun split_at c s =
     (String.substring(s,0,find_first 0 c s),
@@ -104,6 +104,9 @@ fun format_line sec_name = let
     val s3 = String.extract(s3,0,SOME (size s3 - 1))
     val s1 = if size s1 < 16 then s1 else String.substring(s1,8,size s1 - 8)
     val i = Arbnum.toInt(Arbnum.fromHexString s1)
+    val s2 = let
+      val chunks = String.tokens Char.isSpace s2
+      in String.concat ((if is_riscv then List.rev else fn x => x) chunks) end
     val s2 = if String.isPrefix ".word" s3 then "const:" ^ s2 else s2
     val s2 = if String.isPrefix "ldrls\tpc," s3 then "switch:" ^ s2 else s2
     val s2 = ((if is_subroutine_call s3
@@ -111,9 +114,7 @@ fun format_line sec_name = let
                  (el 2 (String.tokens (fn x => mem x [#"<",#">"]) s3)) ^ ":" ^ s2
                else s2)
               handle HOL_ERR _ => s2)
-    val f = String.translate (fn c => if c = #" " then "" else
-              implode [c])
-    in (i,f s2,s3) end
+    in (i,s2,s3) end
     handle Subscript => (fail())
   in format_line_aux end
 
@@ -198,7 +199,7 @@ fun read_complete_sections filename filename_sigs ignore = let
   fun process_body (sec_name,io,location,body) =
     (remove_dot sec_name,io,location,
         if mem sec_name ignore then [] else
-          mark_riscv_switch (try_map (format_line sec_name) body))
+          mark_riscv_switch (try_map (format_line is_riscv sec_name) body))
   val all_sections = map process_body all_sections
   (* location function *)
   fun update x y f a = if x = a then y else f a
