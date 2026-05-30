@@ -104,6 +104,9 @@ fun format_line sec_name = let
     val s3 = String.extract(s3,0,SOME (size s3 - 1))
     val s1 = if size s1 < 16 then s1 else String.substring(s1,8,size s1 - 8)
     val i = Arbnum.toInt(Arbnum.fromHexString s1)
+    val s2 = let
+      val chunks = String.tokens Char.isSpace s2
+      in String.concat (List.rev chunks) end
     val s2 = if String.isPrefix ".word" s3 then "const:" ^ s2 else s2
     val s2 = if String.isPrefix "ldrls\tpc," s3 then "switch:" ^ s2 else s2
     val s2 = ((if is_subroutine_call s3
