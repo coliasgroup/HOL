@@ -6,6 +6,9 @@ open wordsTheory set_sepTheory progTheory helperLib addressTheory combinTheory;
 open backgroundLib file_readerLib writerLib;
 open GraphLangTheory
 
+val _ = TextIO.output(TextIO.stdErr, "*** stack_analysisLib loaded (with sa-step diagnostic) ***\n")
+val _ = TextIO.flushOut TextIO.stdErr
+
 fun arch_max_return_words () = let
   val max = (case !arch_name of
                 RISCV => 2
@@ -112,7 +115,7 @@ local
     fun mk_arb_pair tm = (tm,mk_arb(type_of tm))
     val wty = wsize()
     val regs = (case !arch_name of
-                  RISCV => ["r3"]
+                  RISCV => ["r3"] (* TOOD should there be more here? *)
                 | ARM => ["r0","r1","r2","r3","r14"]
                 | M0 => ["r0","r1","r2","r3","r14"])
     in map mk_arb_pair
@@ -235,8 +238,7 @@ fun find_stack_accesses_for all_summaries sec_name = let
     val i = remove_read_word o word_simp_tm o subst (map (fn (x,y) => x |-> y) s)
     fun contains_sp tm = term_mem sp_var (free_vars tm)
     in if contains_sp (i a)
-       then found_stack_access pc (filter (fn (x,y) => contains_sp y)
-                                     (map (fn (x,y) => (x,i y)) s))
+       then found_stack_access pc []
        else () end
   fun get_pc (pc,s,t) = pc
   fun term_term_mem (t1,t2) [] = false
@@ -253,23 +255,44 @@ fun find_stack_accesses_for all_summaries sec_name = let
                                              term_to_string y ^ "\n")) s
     val _ = print ("  assuming: " ^ term_to_string t ^ "\n\n")
     in () end
+  val exec_steps_counter = ref 0
+  fun dbg_err s = (TextIO.output(TextIO.stdErr, s); TextIO.flushOut TextIO.stdErr)
   fun exec_steps state =
     if has_visited state then () else let
-   (* val _ = register_state state *)
       val (pc,s,t) = state
+      val _ = exec_steps_counter := !exec_steps_counter + 1
+      val n = !exec_steps_counter
+      val _ = let
+                val s_size = foldl (fn ((_,y),acc) => acc + term_size y) 0 s
+              in dbg_err ("    sa-step " ^ sec_name
+                          ^ " n=" ^ Int.toString n
+                          ^ " |s|=" ^ Int.toString (length s)
+                          ^ " sum_sz(s)=" ^ Int.toString s_size
+                          ^ " sz(t)=" ^ Int.toString (term_size t)
+                          ^ " pc=" ^ term_to_string pc ^ "\n")
+              end
+   (* val _ = register_state state *)
    (* val _ = print_state state *)
       val us = filter (fn (p,_,_,_,_) => aconv p pc) all_summaries
+      val _ = dbg_err ("      n=" ^ Int.toString n ^ " after pc-filter |us|=" ^ Int.toString (length us) ^ "\n")
       val us = filter (can_exec_step t) us
+      val _ = dbg_err ("      n=" ^ Int.toString n ^ " after can_exec_step |us|=" ^ Int.toString (length us) ^ "\n")
       val addresses = map (fn (_,_,_,a,_) => a) us
       val _ = map (check_for_stack_accesses state) addresses
+      val _ = dbg_err ("      n=" ^ Int.toString n ^ " after check_for_stack_accesses\n")
    (* val (pc1,assum,u,addr,pc2) = hd us *)
       val states = map (exec_step s t) us
+      val _ = dbg_err ("      n=" ^ Int.toString n ^ " after exec_step, recursing into " ^ Int.toString (length states) ^ "\n")
    (*
       val state = hd states handle Empty => state
    *)
       val _ = map exec_steps states
       in () end
   val _ = exec_steps state
+  val _ = TextIO.output(TextIO.stdErr,
+            "    sa-done " ^ sec_name
+            ^ " n=" ^ Int.toString (!exec_steps_counter) ^ "\n")
+  val _ = TextIO.flushOut TextIO.stdErr
   val xs = !stack_accesses
   in xs end;
 
