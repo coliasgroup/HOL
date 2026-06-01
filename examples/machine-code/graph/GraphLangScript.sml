@@ -2266,16 +2266,27 @@ val xxx2 = new_axiom("foo2",
 Theorem xxx1:
     (w :word32) '
       (MIN (32 :num) (w2n ((v :word32) && (255w :word32))) - (1 :num))
-    = if v && ~31w = 0w
-      then (if v && 255w = 0w then w ' 0 else ShiftRight w ((v && 255w) - 1w) ' 0)
+    = if (v && 255w) <+ 32w
+      then (if v && 255w = 0w then w ' 0
+            else ShiftRight w ((v && 255w) - 1w) ' 0)
       else w ' 31
 Proof
-  cheat
+  `(v && 255w) <+ 256w:word32` by blastLib.BBLAST_TAC
+  \\ Cases_on `v && 255w`
+  \\ fs [WORD_LO, arithmeticTheory.MIN_DEF]
+  \\ Cases_on `n < 32` \\ fs []
+  >- (Cases_on `n = 0` >- fs []
+      \\ `~(n < 1) /\ n - 1 < 4294967296 /\ n - 1 < 32` by decide_tac
+      \\ rewrite_tac [GSYM word_sub_def]
+      \\ full_simp_tac std_ss [word_arith_lemma2]
+      \\ fs [ShiftRight_def, word_lsr_def, fcpTheory.FCP_BETA])
+  \\ `~(32 < n) ==> (n = 32)` by decide_tac
+  \\ fs []
 QED
 
 val xxxconj = LIST_CONJ [
-  tst_helpers
-  (* xxx1 *)
+  tst_helpers,
+  xxx1
 ];
 
 val word_add_with_carry_eq = prove(
