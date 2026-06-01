@@ -2274,8 +2274,8 @@ Proof
 QED
 
 val xxxconj = LIST_CONJ [
-  tst_helpers,
-  xxx1
+  tst_helpers
+  (* xxx1 *)
 ];
 
 val word_add_with_carry_eq = prove(
