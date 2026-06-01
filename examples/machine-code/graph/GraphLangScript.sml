@@ -2210,7 +2210,7 @@ val tst_helper_lemma1 = blastLib.BBLAST_PROVE
 
 val tst_helper_w2w_w2w_lemma = prove(
   ``w2n (w2w (v:word32) :word8) = w2n (v && 255w:word32)``,
-  fs [w2n_11,Once ttst_helper_lemma1,w2w_def] \\ assume_tac tst_helper_lemma1 \\ fs [WORD_LO]);
+  fs [w2n_11,Once tst_helper_lemma1,w2w_def] \\ assume_tac tst_helper_lemma1 \\ fs [WORD_LO]);
 
 Theorem tst_helper_lemma2:
     (w :word32) '
