@@ -92,7 +92,8 @@ fun format_line is_riscv sec_name = let
     not (String.isPrefix "lbu" s3) andalso
     ((String.isPrefix "bl" s3 andalso not (String.isPrefix "bls" s3)
                               andalso not (String.isPrefix "ble" s3)
-                              andalso not (String.isPrefix "blt" s3)) orelse let
+                              andalso not (String.isPrefix "blt" s3)
+                              andalso not (String.isPrefix "blo" s3)) orelse let
      val ts = String.tokens (fn c => mem c [#"<",#">"]) s3
      in 1 < length ts andalso not (el 2 ts = sec_name) andalso
         length (String.tokens (fn x => x = #"+") (el 2 ts)) < 2 end)
