@@ -185,13 +185,28 @@ fun find_stack_accesses_for all_summaries sec_name = let
     handle HOL_ERR _ => false
   val stack_read32_pat = ``READ32 (a:word32) m``
   val stack_read64_pat = ``READ64 (a:word64) m``
+  (* Stack analysis only consumes one bit of information from each entry in
+     the state map: whether its value transitively mentions sp_var. Anything
+     else the symbolic expression carries is dead weight, and it gets paid for
+     by SIMP_CONV at every step. We make this explicit in the filter below:
+     for a register update (is_var x), the entry is retained only when the
+     value mentions sp_var; non-sp-derived entries are dropped. Combined with
+     the pre-existing rule for memory updates (kept only when the address is
+     sp_add_or_sub), the state's invariant becomes "every entry carries
+     evidence of sp-derivation".
+
+     This also tames functions like seL4's chooseThread, where GCC's
+     branchless __builtin_clz on RV64 (no Zbb) emits a long chain of
+     register-variable shifts on the same destination (`srl rd, rd, rs2`
+     × 12). Without this filter, each step nests the previous symbolic value
+     of rd one level deeper and SIMP_CONV time grows exponentially. *)
   fun is_simple_or_stack_read32 (x,y) =
-    if is_var x then true else
+    if is_var x then term_mem sp_var (free_vars y) else
     if can (match_term stack_read32_pat) x then
       (x |> rator |> rand |> is_sp_add_or_sub)
     else false
   fun is_simple_or_stack_read64 (x,y) =
-    if is_var x then true else
+    if is_var x then term_mem sp_var (free_vars y) else
     if can (match_term stack_read64_pat) x then
       (x |> rator |> rand |> is_sp_add_or_sub)
     else false
