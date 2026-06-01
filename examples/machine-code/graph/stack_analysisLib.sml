@@ -112,7 +112,7 @@ local
     fun mk_arb_pair tm = (tm,mk_arb(type_of tm))
     val wty = wsize()
     val regs = (case !arch_name of
-                  RISCV => ["r3"]
+                  RISCV => ["r3"] (* TODO should there be more here? *)
                 | ARM => ["r0","r1","r2","r3","r14"]
                 | M0 => ["r0","r1","r2","r3","r14"])
     in map mk_arb_pair
