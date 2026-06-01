@@ -2193,6 +2193,47 @@ val rw4 = let
   val lemma3 = CONJ lemma1 lemma2 |> RW [GSYM CONJ_ASSOC]
   in lemma3 end;
 
+val rw4xxx = let
+  val lemma = blastLib.BBLAST_PROVE
+    ``!v. ((w2w (v:word32)):word8 = w2w (v && 255w)) /\
+          (v && 255w) <+ 256w:word32``
+  val w2w_w2w_lemma = prove(
+    ``w2n (w2w (v:word32) :word8) = w2n (v && 255w:word32)``,
+    fs [w2n_11,Once lemma,w2w_def] \\ assume_tac lemma \\ fs [WORD_LO]);
+  val lemma1 = prove(
+    ``(w:word32) ' (w2n (w2w (v:word32) :word8) - (1 :num)) /\
+      w2n (w2w (v:word32) :word8) < (32 :num)
+      <=>
+      (v && 255w) <+ 32w /\
+      if v && 255w = 0w then w ' 0 else ShiftRight w ((v && 255w) - 1w) ' 0``,
+    fs [w2w_w2w_lemma,ShiftRight_def]
+    \\ qspec_then `255w && v` mp_tac lemma
+    \\ rw []
+    \\ Cases_on `255w && v`
+    \\ fs [WORD_LO]
+    \\ rewrite_tac [GSYM word_sub_def]
+    \\ full_simp_tac std_ss [word_arith_lemma2]
+    \\ `~(n < 1) /\ (n - 1) < 2147483648 /\ (n <= 32 = n < 33)` by decide_tac
+    \\ fs [word_lsr_def,fcpTheory.FCP_BETA]
+    \\ Cases_on `n < 32` \\ fs [])
+  val lemma2 = prove(
+    ``(w:word32) ' (w2n (w2w (v:word32) :word8)) /\
+      w2n (w2w (v:word32) :word8) <= (31 :num)
+      <=>
+      (v && 255w) <+ 32w /\ ShiftRight w (v && 255w) ' 0``,
+    fs [w2w_w2w_lemma,ShiftRight_def]
+    \\ qspec_then `255w && v` mp_tac lemma
+    \\ rw []
+    \\ Cases_on `255w && v`
+    \\ fs [WORD_LO]
+    \\ `n < 4294967296 /\ (n <= 31 = n < 32)` by decide_tac
+    \\ fs [word_lsr_def,fcpTheory.FCP_BETA]
+    \\ Cases_on `n < 32` \\ fs [])
+  val lemma1 = CONJ lemma1 (lemma1 |> RW1 [CONJ_COMM])
+  val lemma2 = CONJ lemma2 (lemma2 |> RW1 [CONJ_COMM])
+  val lemma3 = CONJ lemma1 lemma2 |> RW [GSYM CONJ_ASSOC]
+  in lemma3 end;
+
 val rw1 = prove(
   ``EVERY (\i. ((w:word32) ' i = ((w && n2w (2 ** i)) <> 0w)) /\
                (word_bit i w = ((w && n2w (2 ** i)) <> 0w)) /\
@@ -2203,6 +2244,39 @@ val rw1 = prove(
   FULL_SIMP_TAC (srw_ss()) [EVAL ``GENLIST I 32``,EVERY_DEF,
     ShiftLeft_def,ShiftRight_def,SignedShiftRight_def,w2n_n2w] \\ blastLib.BBLAST_TAC)
   |> SIMP_RULE std_ss [EVAL ``GENLIST I 32``,EVERY_DEF]
+
+val tst_helper_lemma = blastLib.BBLAST_PROVE
+  ``!v. ((w2w (v:word32)):word8 = w2w (v && 255w)) /\
+        (v && 255w) <+ 256w:word32``
+
+val tst_helper_w2w_w2w_lemma = prove(
+  ``w2n (w2w (v:word32) :word8) = w2n (v && 255w:word32)``,
+  fs [w2n_11,Once tst_helper_lemma,w2w_def] \\ assume_tac tst_helper_lemma \\ fs [WORD_LO]);
+
+val tst_helpers = LIST_CONJ [
+  tst_helper_w2w_w2w_lemma
+];
+
+val xxx2 = new_axiom("foo2",
+  ``((v :word32) &&
+      (w: word32) >> w2n ((x :word32) && (255w :word32)) =
+        (0w :word32))
+          = T``);
+
+Theorem xxx1:
+    (w :word32) '
+      (MIN (32 :num) (w2n ((v :word32) && (255w :word32))) - (1 :num))
+    = if v && ~31w = 0w
+      then (if v && 255w = 0w then w ' 0 else ShiftRight w ((v && 255w) - 1w) ' 0)
+      else w ' 31
+Proof
+  cheat
+QED
+
+val xxxconj = LIST_CONJ [
+  tst_helpers,
+  xxx1
+];
 
 val word_add_with_carry_eq = prove(
   ``word_add_with_carry (x:'a word) y z =
@@ -2291,12 +2365,22 @@ val rw_sra = store_thm("rw_sra",
   \\ fs [SignedShiftRight_def,w2w_def]
   \\ blastLib.BBLAST_TAC);
 
+val tst_helper_lemmax = blastLib.BBLAST_PROVE
+  ``!v. ((w2w (v:word32)):word8 = w2w (v && 255w)) /\
+        (v && 255w) <+ 256w:word32``
+
+val tst_helper_w2w_w2w_lemmax = prove(
+  ``w2n (w2w (v:word32) :word8) = w2n (v && 255w:word32)``,
+  fs [w2n_11,Once tst_helper_lemmax,w2w_def] \\ assume_tac tst_helper_lemmax \\ fs [WORD_LO]);
+
 val graph_format_preprocessing = save_thm("graph_format_preprocessing",
   LIST_CONJ [MemAcc8_def, MemAcc32_def, MemAcc64_def,
              ShiftLeft_def, ShiftRight_def,
              MemUpdate8_def, MemUpdate32_def, MemUpdate64_def] |> GSYM
   |> CONJ rw1 |> CONJ rw3 |> CONJ rw64 |> CONJ rw16 |> CONJ rw8 |> CONJ rw4
+  |> CONJ xxxconj
   |> CONJ rw_sra
+  (* |> CONJ tst_helper_w2w_w2w_lemmax *)
   |> CONJ w2w_carry |> CONJ w2w_carry_alt
   |> CONJ carry_out_eq
   |> CONJ READ32_expand64
