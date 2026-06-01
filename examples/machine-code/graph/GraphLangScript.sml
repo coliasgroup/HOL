@@ -2204,6 +2204,40 @@ val rw1 = prove(
     ShiftLeft_def,ShiftRight_def,SignedShiftRight_def,w2n_n2w] \\ blastLib.BBLAST_TAC)
   |> SIMP_RULE std_ss [EVAL ``GENLIST I 32``,EVERY_DEF]
 
+val tst_helper_lemma1 = blastLib.BBLAST_PROVE
+  ``!v. ((w2w (v:word32)):word8 = w2w (v && 255w)) /\
+        (v && 255w) <+ 256w:word32``
+
+val tst_helper_w2w_w2w_lemma = prove(
+  ``w2n (w2w (v:word32) :word8) = w2n (v && 255w:word32)``,
+  fs [w2n_11,Once tst_helper_lemma1,w2w_def] \\ assume_tac tst_helper_lemma1 \\ fs [WORD_LO]);
+
+Theorem tst_helper_lemma2:
+    (w :word32) '
+      (MIN (32 :num) (w2n ((v :word32) && (255w :word32))) - (1 :num))
+    = if (v && 255w) <+ 32w
+      then (if v && 255w = 0w then w ' 0
+            else ShiftRight w ((v && 255w) - 1w) ' 0)
+      else w ' 31
+Proof
+  `(v && 255w) <+ 256w:word32` by blastLib.BBLAST_TAC
+  \\ Cases_on `v && 255w`
+  \\ fs [WORD_LO, arithmeticTheory.MIN_DEF]
+  \\ Cases_on `n < 32` \\ fs []
+  >- (Cases_on `n = 0` >- fs []
+      \\ `~(n < 1) /\ n - 1 < 4294967296 /\ n - 1 < 32` by decide_tac
+      \\ rewrite_tac [GSYM word_sub_def]
+      \\ full_simp_tac std_ss [word_arith_lemma2]
+      \\ fs [ShiftRight_def, word_lsr_def, fcpTheory.FCP_BETA])
+  \\ `~(32 < n) ==> (n = 32)` by decide_tac
+  \\ fs []
+QED
+
+val tst_helpers = LIST_CONJ [
+  tst_helper_w2w_w2w_lemma,
+  tst_helper_lemma2
+];
+
 val word_add_with_carry_eq = prove(
   ``word_add_with_carry (x:'a word) y z =
     x + y + if z then 1w else 0w``,
@@ -2296,6 +2330,7 @@ val graph_format_preprocessing = save_thm("graph_format_preprocessing",
              ShiftLeft_def, ShiftRight_def,
              MemUpdate8_def, MemUpdate32_def, MemUpdate64_def] |> GSYM
   |> CONJ rw1 |> CONJ rw3 |> CONJ rw64 |> CONJ rw16 |> CONJ rw8 |> CONJ rw4
+  |> CONJ tst_helpers
   |> CONJ rw_sra
   |> CONJ w2w_carry |> CONJ w2w_carry_alt
   |> CONJ carry_out_eq
