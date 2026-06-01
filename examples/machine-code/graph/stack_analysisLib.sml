@@ -235,8 +235,7 @@ fun find_stack_accesses_for all_summaries sec_name = let
     val i = remove_read_word o word_simp_tm o subst (map (fn (x,y) => x |-> y) s)
     fun contains_sp tm = term_mem sp_var (free_vars tm)
     in if contains_sp (i a)
-       then found_stack_access pc (filter (fn (x,y) => contains_sp y)
-                                     (map (fn (x,y) => (x,i y)) s))
+       then found_stack_access pc []
        else () end
   fun get_pc (pc,s,t) = pc
   fun term_term_mem (t1,t2) [] = false
