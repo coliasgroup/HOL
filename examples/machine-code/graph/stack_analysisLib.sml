@@ -221,8 +221,13 @@ fun find_stack_accesses_for all_summaries sec_name = let
     in () end
   val read_word_pat = (if !arch_name = RISCV then ``READ64 a (m:word64->word8)``
                                              else ``READ32 a (m:word32->word8)``)
+  (* a value loaded as a single byte can never be a stack pointer *)
+  val read_byte_pat = (if !arch_name = RISCV then ``READ8 a (m:word64->word8)``
+                                             else ``READ8 a (m:word32->word8)``)
   fun remove_read_word tm = let
-    val xs = find_terms (can (match_term read_word_pat)) tm
+    fun is_read tm = can (match_term read_word_pat) tm orelse
+                     can (match_term read_byte_pat) tm
+    val xs = find_terms is_read tm
     val ss = map (fn x => x |-> (mk_arb(type_of x))) xs
     in subst ss tm end
   fun found_stack_access pc s = let
